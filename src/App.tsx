@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 import { DashboardPage } from '@/pages/dashboard'
 import { UploadPage } from '@/pages/upload'
 import { MessagesPage } from '@/pages/messages'
@@ -25,6 +26,30 @@ export default function App() {
     return () => {
       window.removeEventListener('online', goOnline)
       window.removeEventListener('offline', goOffline)
+    }
+  }, [])
+
+  // The window starts hidden (see tauri.conf.json) so the OS never shows a
+  // blank white frame before our own UI has painted. Reveal it right after
+  // the first real paint — double rAF guarantees the browser has actually
+  // painted, not just that React committed. A fallback timeout shows the
+  // window regardless in case something on the way to first paint hangs, so
+  // a stuck load doesn't leave the app invisible forever. Lives here (not
+  // AppShell) so it fires no matter which screen renders first, including
+  // the offline screen. No-ops outside a real Tauri build (e.g. browser dev).
+  useEffect(() => {
+    let cancelled = false
+    const reveal = () => {
+      if (cancelled) return
+      cancelled = true
+      getCurrentWindow().show().catch(() => undefined)
+    }
+    const raf1 = requestAnimationFrame(() => requestAnimationFrame(reveal))
+    const fallback = setTimeout(reveal, 3000)
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf1)
+      clearTimeout(fallback)
     }
   }, [])
 

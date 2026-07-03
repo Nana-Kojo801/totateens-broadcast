@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { getCurrentWindow } from '@tauri-apps/api/window'
 import { P } from '@/lib/tokens'
 import { Icon } from '@/lib/icons'
 import { Toast } from '@/components/ui/toast'
@@ -73,29 +72,6 @@ export function AppShell() {
 
   const waStatusRef = useRef<WaStatus>('loading')
   const waQrRef = useRef<string | null>(null)
-
-  // The window starts hidden (see tauri.conf.json) so the OS never shows a
-  // blank white frame before our own UI has painted. Reveal it right after
-  // the first real paint — double rAF guarantees the browser has actually
-  // painted, not just that React committed. A fallback timeout shows the
-  // window regardless in case something on the way to first paint hangs, so
-  // a stuck load doesn't leave the app invisible forever. No-ops outside a
-  // real Tauri build (e.g. plain browser dev).
-  useEffect(() => {
-    let cancelled = false
-    const reveal = () => {
-      if (cancelled) return
-      cancelled = true
-      getCurrentWindow().show().catch(() => undefined)
-    }
-    const raf1 = requestAnimationFrame(() => requestAnimationFrame(reveal))
-    const fallback = setTimeout(reveal, 3000)
-    return () => {
-      cancelled = true
-      cancelAnimationFrame(raf1)
-      clearTimeout(fallback)
-    }
-  }, [])
 
   // Polled here (not per-page) so the connection status stays current no
   // matter which page is open — Dashboard and Settings both just read
