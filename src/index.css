@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #F7F7F4;
+  --color-bg-soft: #FAFAF7;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F1F1ED;
+  --color-ink: #0E1410;
+  --color-ink-soft: #5A6660;
+  --color-ink-faint: #9CA5A0;
+  --color-line: #E5E5E0;
+  --color-line-soft: #EFEFEA;
+  --color-sage: #2F7D5C;
+  --color-sage-hi: #3C9871;
+  --color-sage-tint: #DEF2E7;
+  --color-sage-deep: #1F5A41;
+  --color-sun: #D88B26;
+  --color-sun-tint: #FBE9CC;
+  --color-rose: #B23A48;
+  --color-rose-tint: #F7D9DD;
+  --color-sky: #3D6FA8;
+  --color-sky-tint: #DCE6F2;
+
+  --font-sans: 'Geist', 'Manrope', -apple-system, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0; padding: 0; height: 100%; width: 100%;
+  background: #F7F7F4;
+  font-family: 'Geist', -apple-system, system-ui, sans-serif;
+  color: #0E1410;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* { scrollbar-width: thin; scrollbar-color: #E5E5E0 transparent; }
+*::-webkit-scrollbar { width: 5px; height: 5px; }
+*::-webkit-scrollbar-thumb { background: #E5E5E0; border-radius: 99px; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1);   }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.select-item[data-highlighted] {
+  background: #DEF2E7;
+  outline: none;
+}

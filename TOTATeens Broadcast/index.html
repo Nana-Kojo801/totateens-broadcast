@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TOTATeens Broadcast — Interactive prototype</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'Geist', system-ui, sans-serif; }
+  #root { width: 100vw; min-height: 100vh; }
+  .ab-clip { overflow: hidden; }
+  @keyframes pulse-toast-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="data.js"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="whatsapp-bubble.jsx"></script>
+<script type="text/babel" src="pulse-shell.jsx"></script>
+<script type="text/babel" src="pulse-app.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "calendarStyle": "tiles"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const PulseApp = window.PulseApp;
+
+  return (
+    <React.Fragment>
+      <DesignCanvas>
+        <DCSection
+          id="pulse"
+          title="Pulse"
+          subtitle="Interactive prototype — sign in, navigate, edit, send. Same state per artboard."
+        >
+          <DCArtboard id="pulse-desktop" label="Desktop · 1280 × 820" width={1280} height={820} className="ab-clip">
+            <PulseApp viewport="desktop" calendarStyle={t.calendarStyle}/>
+          </DCArtboard>
+          <DCArtboard id="pulse-mobile" label="Mobile · 390 × 844" width={390} height={844} className="ab-clip">
+            <PulseApp viewport="mobile" calendarStyle={t.calendarStyle}/>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+
+      <TweaksPanel title="Tweaks">
+        <TweakSection label="Calendar">
+          <TweakRadio
+            label="Day status"
+            value={t.calendarStyle}
+            options={[
+              { value: 'tiles', label: 'Tiles' },
+              { value: 'dots', label: 'Dots' },
+            ]}
+            onChange={(v) => setTweak('calendarStyle', v)}
+          />
+          <div style={{ fontSize: 11, color: '#7a6a55', marginTop: 6, lineHeight: 1.5 }}>
+            Switches calendar treatment in both viewports.
+          </div>
+        </TweakSection>
+      </TweaksPanel>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

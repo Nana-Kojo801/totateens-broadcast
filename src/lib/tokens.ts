@@ -1,0 +1,25 @@
+export const P = {
+  bg: '#F7F7F4',
+  bgSoft: '#FAFAF7',
+  surface: '#FFFFFF',
+  surfaceAlt: '#F1F1ED',
+  ink: '#0E1410',
+  inkSoft: '#5A6660',
+  inkFaint: '#9CA5A0',
+  line: '#E5E5E0',
+  lineSoft: '#EFEFEA',
+  sage: '#2F7D5C',
+  sageHi: '#3C9871',
+  sageTint: '#DEF2E7',
+  sageDeep: '#1F5A41',
+  sun: '#D88B26',
+  sunTint: '#FBE9CC',
+  rose: '#B23A48',
+  roseTint: '#F7D9DD',
+  sky: '#3D6FA8',
+  skyTint: '#DCE6F2',
+  sans: '"Geist", "Manrope", -apple-system, system-ui, sans-serif',
+  mono: '"Geist Mono", "JetBrains Mono", ui-monospace, monospace',
+} as const
+
+export const BAR_COLORS = [P.sage, P.sageHi, P.sun, P.sky, P.rose]
