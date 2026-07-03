@@ -2,6 +2,7 @@ import { P } from '@/lib/tokens'
 import { Card } from '@/components/ui/card'
 import { Btn } from '@/components/ui/btn'
 import { Icon } from '@/lib/icons'
+import { SEND_TIME_LABEL } from '@/lib/broadcast-time'
 
 interface Props {
   onPick: () => void
@@ -19,7 +20,7 @@ export function UploadDropzone({ onPick, onPickJson, jsonImporting = false, view
       </div>
       <div style={{ fontSize: 18, fontWeight: 600 }}>Upload this month's devotional PDF</div>
       <div style={{ fontSize: 13, color: P.inkSoft, marginTop: 8, maxWidth: 360, margin: '8px auto 0', lineHeight: 1.55 }}>
-        One PDF per month. We'll read through it and prepare 31 daily messages — you preview, edit, and we broadcast at 02:00 GMT.
+        One PDF per month. We'll read through it and prepare 31 daily messages — you preview, edit, and we broadcast at {SEND_TIME_LABEL}.
       </div>
       <Btn variant="primary" onClick={onPick} style={{ marginTop: 22, padding: '11px 18px', fontSize: 13 }}>
         <Icon name="upload" size={13} color="#FFF" /> Choose PDF file

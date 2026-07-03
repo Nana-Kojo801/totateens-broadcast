@@ -6,6 +6,7 @@ import { Dot } from '@/components/ui/dot'
 import { Icon } from '@/lib/icons'
 import { useAppStore } from '@/store/app-store'
 import type { DevotionalDay, WhatsAppGroup } from '@/store/app-store'
+import { SEND_HOUR_UTC, SEND_MINUTE_UTC } from '@/lib/broadcast-time'
 
 interface Props {
   nextDay: DevotionalDay
@@ -24,7 +25,7 @@ export function DashboardNextMessage({ nextDay, groups, onManualSend }: Props) {
           <Dot color={P.sageHi} size={6} /> NEXT BROADCAST
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-          <div style={{ fontFamily: P.mono, fontSize: 28, fontWeight: 600, lineHeight: 1 }}>02:00</div>
+          <div style={{ fontFamily: P.mono, fontSize: 28, fontWeight: 600, lineHeight: 1 }}>{String(SEND_HOUR_UTC).padStart(2, '0')}:{String(SEND_MINUTE_UTC).padStart(2, '0')}</div>
           <div style={{ fontSize: 11, color: '#9CB3A3' }}>GMT · in 14h 23m</div>
         </div>
         <div style={{ fontSize: 12, color: '#C8D4CD', marginTop: 6 }}>Day {nextDay.d} · {nextDay.title}</div>

@@ -19,6 +19,7 @@ import { dowShortOfDate, ordinal, monthName } from '@/lib/utils'
 import { renderMessage } from '../../../convex/lib/renderMessage'
 import { DEFAULT_TEMPLATE_CONFIG } from '../../../convex/lib/templateConfig'
 import type { DevotionalDay, DayStatus } from '@/store/app-store'
+import { SEND_TIME_LABEL } from '@/lib/broadcast-time'
 
 function convexMsgToDay(msg: {
   _id: string
@@ -240,7 +241,7 @@ export function MessagesPage() {
                 DAY {day.d} · {day.status.toUpperCase()}
               </Tag>
               <Tag bg={P.surfaceAlt} color={P.inkSoft}>{dowShortOfDate(convexMsg.date).toUpperCase()} · {ordinal(day.d).toUpperCase()} {monthName(Number(convexMsg.date.slice(5, 7))).toUpperCase()} {convexMsg.date.slice(0, 4)}</Tag>
-              <Tag bg={P.surfaceAlt} color={P.inkSoft}>02:00 GMT</Tag>
+              <Tag bg={P.surfaceAlt} color={P.inkSoft}>{SEND_TIME_LABEL}</Tag>
               <div style={{ flex: 1 }} />
               {!isEdit ? (
                 <Btn onClick={startEdit}><Icon name="pencil" size={12} /> Edit message</Btn>
@@ -301,7 +302,7 @@ export function MessagesPage() {
             <div style={{ padding: '0 16px 12px', fontSize: 11, color: P.inkSoft, textAlign: 'center', fontFamily: P.mono }}>
               {day.status === 'sent'
                 ? 'sent · see history'
-                : 'scheduled · auto-broadcast 02:00 GMT'}
+                : `scheduled · auto-broadcast ${SEND_TIME_LABEL}`}
             </div>
             <div style={{ padding: '0 14px' }}>
               <WhatsAppBubble text={previewText} size="sm" />

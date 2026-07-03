@@ -21,6 +21,7 @@ import { DashboardScheduleBar } from './components/dashboard-schedule-bar'
 import { DashboardRecent } from './components/dashboard-recent'
 import { DashboardNextMessage } from './components/dashboard-next-message'
 import { dowShortOfDate, monthName } from '@/lib/utils'
+import { SEND_HOUR_UTC, SEND_MINUTE_UTC, SEND_TIME_LABEL } from '@/lib/broadcast-time'
 import type { DevotionalDay, DayStatus, HistoryEntry, WhatsAppGroup } from '@/store/app-store'
 
 function convexMsgToDay(msg: {
@@ -54,7 +55,7 @@ function convexMsgToDay(msg: {
 function computeCountdown(): string {
   const now = new Date()
   const next = new Date()
-  next.setUTCHours(2, 0, 0, 0)
+  next.setUTCHours(SEND_HOUR_UTC, SEND_MINUTE_UTC, 0, 0)
   if (next <= now) next.setUTCDate(next.getUTCDate() + 1)
   const diff = next.getTime() - now.getTime()
   const h = Math.floor(diff / 3600000)
@@ -181,7 +182,7 @@ export function DashboardPage() {
   const activeGroups = groups.filter((g) => g.active)
   const todayFormatted = convexMessages.find((m) => m.date === new Date().toISOString().slice(0, 10))?.formattedMessage ?? ''
   const nextDayDate = nextDay ? `${todayMonthYear}-${String(nextDay.d).padStart(2, '0')}` : null
-  const nextBroadcastSub = nextDay && nextDayDate ? `${dowShortOfDate(nextDayDate)} · ${String(nextDay.d).padStart(2, '0')} ${monthName(Number(todayMonthYear.slice(5, 7)))} · 02:00 GMT` : '02:00 GMT'
+  const nextBroadcastSub = nextDay && nextDayDate ? `${dowShortOfDate(nextDayDate)} · ${String(nextDay.d).padStart(2, '0')} ${monthName(Number(todayMonthYear.slice(5, 7)))} · ${SEND_TIME_LABEL}` : SEND_TIME_LABEL
 
   const goToMessage = (day: number) => {
     setViewMonth(todayMonthYear)
@@ -265,7 +266,7 @@ export function DashboardPage() {
       <div className="md:hidden" style={{ padding: '0 16px 16px' }}>
         <div style={{ background: P.ink, color: '#FFF', borderRadius: 14, padding: 16, position: 'relative', overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 10.5, letterSpacing: 1, fontWeight: 600, color: '#9CB3A3' }}>
-            <Dot color={P.sageHi} /> NEXT BROADCAST · 02:00 GMT
+            <Dot color={P.sageHi} /> NEXT BROADCAST · {SEND_TIME_LABEL}
           </div>
           <div style={{ fontFamily: P.mono, fontSize: 34, fontWeight: 600, lineHeight: 1, marginTop: 6 }}>{countdown}</div>
           <div style={{ fontSize: 12, color: '#C8D4CD', marginTop: 7 }}>Tonight · Day {nextDay?.d} · {nextDay?.title}</div>

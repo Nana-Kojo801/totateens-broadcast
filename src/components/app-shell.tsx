@@ -160,16 +160,6 @@ export function AppShell() {
               )
             })}
 
-            {/* Status */}
-            <div style={{ fontSize: 10, color: P.inkFaint, letterSpacing: 1.4, padding: '14px 8px 6px', fontWeight: 600 }}>STATUS</div>
-            <div style={{ padding: '10px', borderRadius: 7, border: `1px solid ${P.line}`, background: P.surface }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: P.sage, fontWeight: 600 }}>
-                <span style={{ width: 6, height: 6, borderRadius: 99, background: P.sage, boxShadow: `0 0 0 3px ${P.sageTint}`, flexShrink: 0 }} />
-                Scheduler · running
-              </div>
-              <div style={{ fontFamily: P.mono, fontSize: 11, color: P.inkSoft, marginTop: 6 }}>Next: 24/05 · 02:00</div>
-              <div style={{ fontFamily: P.mono, fontSize: 10, color: P.inkFaint, marginTop: 2 }}>in 14h 23m</div>
-            </div>
           </nav>
         </aside>
 

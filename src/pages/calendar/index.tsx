@@ -15,6 +15,7 @@ import { useAppStore } from '@/store/app-store'
 import { useShallow } from 'zustand/react/shallow'
 import { Skeleton } from '@/components/ui/skeleton'
 import { calendarGrid, dowShortOfDate, monthName } from '@/lib/utils'
+import { SEND_TIME_LABEL } from '@/lib/broadcast-time'
 import type { DevotionalDay, DayStatus, WhatsAppGroup } from '@/store/app-store'
 
 const DOW_DESKTOP = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
@@ -340,7 +341,7 @@ export function CalendarPage() {
                 >
                   {sel.status === 'today' ? `TODAY · ${String(sel.d).padStart(2, '0')}/${viewMonth.slice(5, 7)}` : `DAY ${sel.d}`}
                 </Tag>
-                <span style={{ fontFamily: P.mono, fontSize: 11, color: P.inkSoft }}>02:00 GMT</span>
+                <span style={{ fontFamily: P.mono, fontSize: 11, color: P.inkSoft }}>{SEND_TIME_LABEL}</span>
               </div>
               {sel.title ? (
                 <>
@@ -403,7 +404,7 @@ export function CalendarPage() {
             >
               {sel.status === 'today' ? `TODAY · DAY ${sel.d}` : `DAY ${sel.d} · ${sel.status.toUpperCase()}`}
             </Tag>
-            <span style={{ fontSize: 10.5, color: P.inkSoft, fontFamily: P.mono }}>{dowShortOfDate(`${viewMonth}-${String(sel.d).padStart(2, '0')}`).toUpperCase()} · 02:00 GMT</span>
+            <span style={{ fontSize: 10.5, color: P.inkSoft, fontFamily: P.mono }}>{dowShortOfDate(`${viewMonth}-${String(sel.d).padStart(2, '0')}`).toUpperCase()} · {SEND_TIME_LABEL}</span>
           </div>
           {sel.title ? (
             <>

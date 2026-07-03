@@ -11,22 +11,6 @@ import type { Doc } from './_generated/dataModel'
 // config doesn't have Node's ambient types, so `process` needs a local shim.
 declare const process: { env: Record<string, string | undefined> }
 
-export const checkAndSendDaily = internalAction({
-  args: {},
-  handler: async (ctx): Promise<void> => {
-    const settings = await ctx.runQuery(internal.appSettings.getInternal, {})
-    const now = new Date()
-    const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes()
-    const targetMinutes = settings.sendHour * 60 + settings.sendMinute
-
-    // Fires from a 5-minute interval cron — only act on the single window
-    // that contains the configured send time.
-    if (nowMinutes < targetMinutes || nowMinutes >= targetMinutes + 5) return
-
-    await ctx.runAction(internal.messages.sendDailyMessage, {})
-  },
-})
-
 export const sendDailyMessage = internalAction({
   args: {},
   handler: async (ctx) => {

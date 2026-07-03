@@ -75,10 +75,4 @@ export default defineSchema({
   })
     .index('by_isActive', ['isActive'])
     .index('by_createdAt', ['createdAt']),
-
-  // Singleton settings doc — at most one row.
-  appSettings: defineTable({
-    sendHour: v.number(),
-    sendMinute: v.number(),
-  }),
 })
