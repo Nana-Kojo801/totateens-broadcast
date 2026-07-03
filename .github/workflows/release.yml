@@ -45,8 +45,15 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         run: pnpm install --frozen-lockfile
 
+      # pkg's own fetch of its prebuilt base Node binary is occasionally
+      # flaky/slow on GH Actions' network even with ~/.pkg-cache warm — cap
+      # each attempt so a hang doesn't stall the whole job, retry instead.
       - name: Build WhatsApp server sidecar
-        run: pnpm build:sidecar
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 4
+          max_attempts: 3
+          command: pnpm build:sidecar
 
       # Every push to main ships a release, so the version is derived from
       # the run number rather than hand-bumped — major.minor stays whatever
