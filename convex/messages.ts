@@ -5,6 +5,12 @@ import { internal } from './_generated/api'
 import { v } from 'convex/values'
 import type { Doc } from './_generated/dataModel'
 
+// This file's action bodies get transitively type-checked under the
+// frontend's browser-only tsconfig too (every page imports `api` from
+// `_generated/api`, which references every convex module's types) — that
+// config doesn't have Node's ambient types, so `process` needs a local shim.
+declare const process: { env: Record<string, string | undefined> }
+
 export const checkAndSendDaily = internalAction({
   args: {},
   handler: async (ctx): Promise<void> => {

@@ -270,7 +270,6 @@ export function CalendarPage() {
 
   const grid = calendarGrid(viewMonth)
   const sel = days[selectedDay - 1]
-  const activeGroups = displayGroups.filter((g) => g.active)
 
   const realDays = days.filter((d) => d.title !== '')
   const sentCount = realDays.filter((d) => d.status === 'sent').length

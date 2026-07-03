@@ -4,6 +4,9 @@ import { internalAction } from './_generated/server'
 import { internal } from './_generated/api'
 import { v } from 'convex/values'
 import { renderMessage } from './lib/renderMessage'
+
+// See convex/messages.ts for why this local shim is needed.
+declare const process: { env: Record<string, string | undefined> }
 import { DEFAULT_TEMPLATE_CONFIG } from './lib/templateConfig'
 
 interface ExtractedDay {

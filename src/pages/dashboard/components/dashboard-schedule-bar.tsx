@@ -9,7 +9,7 @@ interface Props {
   sentCount: number
 }
 
-export function DashboardScheduleBar({ days, sentCount }: Props) {
+export function DashboardScheduleBar({ days }: Props) {
   const navigate = useNavigate()
   return (
     <Card style={{ padding: 16, minWidth: 0 }}>

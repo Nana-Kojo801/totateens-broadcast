@@ -4,6 +4,9 @@ import { action } from './_generated/server'
 import { v } from 'convex/values'
 import { extractLabelParts, stripFontStyle } from './lib/unicodeFonts'
 import { DEFAULT_TEMPLATE_CONFIG } from './lib/templateConfig'
+
+// See convex/messages.ts for why this local shim is needed.
+declare const process: { env: Record<string, string | undefined> }
 import type { TemplateConfig } from './lib/templateConfig'
 
 export interface RoleMap {
