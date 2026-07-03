@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { DashboardPage } from '@/pages/dashboard'
 import { UploadPage } from '@/pages/upload'
@@ -10,9 +11,27 @@ import { TemplatesPage } from '@/pages/templates'
 import { TemplateEditorPage } from '@/pages/template-editor'
 import { MorePage } from '@/pages/more'
 import { NotFoundPage } from '@/pages/not-found'
+import { OfflinePage } from '@/pages/offline'
 import { AppShell } from '@/components/app-shell'
 
 export default function App() {
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine)
+
+  useEffect(() => {
+    const goOnline = () => setIsOnline(true)
+    const goOffline = () => setIsOnline(false)
+    window.addEventListener('online', goOnline)
+    window.addEventListener('offline', goOffline)
+    return () => {
+      window.removeEventListener('online', goOnline)
+      window.removeEventListener('offline', goOffline)
+    }
+  }, [])
+
+  if (!isOnline) {
+    return <OfflinePage onRetry={() => setIsOnline(navigator.onLine)} />
+  }
+
   return (
     <BrowserRouter>
       <Routes>
