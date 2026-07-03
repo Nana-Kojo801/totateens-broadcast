@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: release-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   release:
     runs-on: windows-latest
@@ -24,7 +28,14 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
       - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Build WhatsApp server sidecar
