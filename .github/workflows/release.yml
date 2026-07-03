@@ -32,6 +32,13 @@ jobs:
         with:
           workspaces: src-tauri
 
+      - name: Cache pkg base binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.pkg-cache
+          key: pkg-cache-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pkg-cache-
+
       - name: Install dependencies
         env:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
