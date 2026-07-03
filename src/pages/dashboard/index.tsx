@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from 'convex/react'
@@ -20,7 +20,7 @@ import { DashboardScheduleBar } from './components/dashboard-schedule-bar'
 import { DashboardRecent } from './components/dashboard-recent'
 import { DashboardNextMessage } from './components/dashboard-next-message'
 import { dowShortOfDate, monthName } from '@/lib/utils'
-import type { DevotionalDay, DayStatus, HistoryEntry, WhatsAppGroup, WaStatus } from '@/store/app-store'
+import type { DevotionalDay, DayStatus, HistoryEntry, WhatsAppGroup } from '@/store/app-store'
 
 function convexMsgToDay(msg: {
   _id: string
@@ -63,11 +63,9 @@ function computeCountdown(): string {
 
 export function DashboardPage() {
   const navigate = useNavigate()
-  const { setToast, setWaStatus, setWaQr, setViewMonth, waStatus, waQr } = useAppStore(
+  const { setToast, setViewMonth, waStatus, waQr } = useAppStore(
     useShallow((s) => ({
       setToast: s.setToast,
-      setWaStatus: s.setWaStatus,
-      setWaQr: s.setWaQr,
       setViewMonth: s.setViewMonth,
       waStatus: s.waStatus,
       waQr: s.waQr,
@@ -75,8 +73,6 @@ export function DashboardPage() {
   )
   const [manualSendDay, setManualSendDay] = useState<number | null>(null)
   const [countdown, setCountdown] = useState(computeCountdown())
-  const waStatusRef = useRef<WaStatus>('loading')
-  const waQrRef = useRef<string | null>(null)
 
   // Dashboard always reflects the real current month — deliberately not the
   // shared `viewMonth` store value, which the Calendar page uses to browse
@@ -89,33 +85,6 @@ export function DashboardPage() {
   const convexRecent = useQuery(api.history.listRecent, { limit: 5 })
   const updateStatusMut = useMutation(api.messageQueries.updateStatus)
   const manualSendLogMut = useMutation(api.messageQueries.manualSend)
-
-  useEffect(() => {
-    const waServerUrl = import.meta.env.VITE_WA_SERVER_URL as string | undefined
-    if (!waServerUrl) {
-      if (waStatusRef.current !== 'disconnected') { waStatusRef.current = 'disconnected'; setWaStatus('disconnected') }
-      return
-    }
-    const poll = async () => {
-      try {
-        const res = await fetch(`${waServerUrl}/status`)
-        const data = (await res.json()) as { status: string; qr: string | null }
-        const s = data.status as WaStatus
-        if (s !== waStatusRef.current) { waStatusRef.current = s; setWaStatus(s) }
-        // Only trigger re-render when QR appears (null→url) or disappears (url→null).
-        // QR rotation while still qr_pending updates the ref silently to avoid flickering.
-        const oldQrExisted = waQrRef.current !== null
-        const newQrExists = data.qr !== null
-        waQrRef.current = data.qr
-        if (oldQrExisted !== newQrExists) setWaQr(data.qr)
-      } catch {
-        if (waStatusRef.current !== 'disconnected') { waStatusRef.current = 'disconnected'; setWaStatus('disconnected') }
-      }
-    }
-    void poll()
-    const id = setInterval(() => void poll(), 5000)
-    return () => clearInterval(id)
-  }, [setWaStatus, setWaQr])
 
   useEffect(() => {
     const id = setInterval(() => setCountdown(computeCountdown()), 60000)
@@ -170,6 +139,15 @@ export function DashboardPage() {
   if (convexMessages.length === 0) {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        {(waStatus === 'loading' || waStatus === 'disconnected') && (
+          <Card style={{ padding: 16, display: 'flex', gap: 16, alignItems: 'center', marginBottom: 14 }}>
+            <Skeleton width={96} height={96} style={{ borderRadius: 8, flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <Skeleton height={14} width="50%" />
+              <Skeleton height={12} width="80%" style={{ marginTop: 8 }} />
+            </div>
+          </Card>
+        )}
         <AnimatePresence>
           {waStatus === 'qr_pending' && waQr && (
             <motion.div key="qr" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} style={{ marginBottom: 14 }}>
@@ -269,6 +247,15 @@ export function DashboardPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+      {(waStatus === 'loading' || waStatus === 'disconnected') && (
+        <Card style={{ padding: 14, display: 'flex', gap: 14, alignItems: 'center', marginBottom: 14 }}>
+          <Skeleton width={80} height={80} style={{ borderRadius: 6, flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <Skeleton height={13} width="50%" />
+            <Skeleton height={11} width="80%" style={{ marginTop: 8 }} />
+          </div>
+        </Card>
+      )}
       <AnimatePresence>
         {waStatus === 'qr_pending' && waQr && (
           <motion.div key="qr" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} style={{ marginBottom: 14 }}>

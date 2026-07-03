@@ -192,6 +192,9 @@ export const manualSend = mutation({
     error: v.optional(v.string()),
   },
   handler: async (ctx, { messageId, groupId, status, error }) => {
+    // Failed manual sends aren't recorded — a "try again" that didn't go
+    // through isn't broadcast history.
+    if (status === 'failed') return
     await ctx.db.insert('sendHistory', {
       messageId,
       groupId,

@@ -136,19 +136,6 @@ export function TemplatesPage() {
       </div>
     </motion.div>
 
-      <button
-        type="button"
-        onClick={() => navigate('/templates/new')}
-        className="md:hidden"
-        style={{
-          position: 'fixed', right: 18, bottom: 84, width: 52, height: 52, borderRadius: 99,
-          background: P.sage, border: `1px solid ${P.sageDeep}`, color: '#FFF', cursor: 'pointer',
-          display: 'grid', placeItems: 'center', boxShadow: '0 10px 24px -6px rgba(47,125,92,0.55)', zIndex: 500,
-        }}
-      >
-        <Icon name="plus" size={22} color="#FFF" />
-      </button>
-
       {confirmDelete && (
         <div
           style={{ position: 'fixed', inset: 0, background: 'rgba(14,20,16,0.45)', zIndex: 9500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}

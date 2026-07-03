@@ -145,19 +145,6 @@ export function GroupsPage() {
       </div>
     </motion.div>
 
-      <button
-        type="button"
-        onClick={() => setShowAddModal(true)}
-        className="md:hidden"
-        style={{
-          position: 'fixed', right: 18, bottom: 84, width: 52, height: 52, borderRadius: 99,
-          background: P.sage, border: `1px solid ${P.sageDeep}`, color: '#FFF', cursor: 'pointer',
-          display: 'grid', placeItems: 'center', boxShadow: '0 10px 24px -6px rgba(47,125,92,0.55)', zIndex: 500,
-        }}
-      >
-        <Icon name="plus" size={22} color="#FFF" />
-      </button>
-
       <AddGroupModal open={showAddModal} onConfirm={addGroup} onClose={() => setShowAddModal(false)} />
 
       {confirmDelete && (

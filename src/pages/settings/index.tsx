@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
@@ -7,8 +7,12 @@ import { P } from '@/lib/tokens'
 import { Card } from '@/components/ui/card'
 import { Icon } from '@/lib/icons'
 import { Select } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAppStore } from '@/store/app-store'
+import type { WaStatus } from '@/store/app-store'
 import { useShallow } from 'zustand/react/shallow'
+import { checkForUpdate } from '@/lib/update'
+import { getVersion } from '@tauri-apps/api/app'
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -45,15 +49,49 @@ function Row({ label, sub, value, onClick, danger }: RowProps) {
   )
 }
 
+const WA_STATUS_LABEL: Record<WaStatus, string> = {
+  loading: 'Checking…',
+  connected: 'Connected',
+  qr_pending: 'Waiting for scan',
+  disconnected: 'Not connected',
+}
+const WA_STATUS_COLOR: Record<WaStatus, string> = {
+  loading: P.inkFaint,
+  connected: P.sage,
+  qr_pending: P.sun,
+  disconnected: P.rose,
+}
+
+function WaStatusRow({ waStatus }: { waStatus: WaStatus }) {
+  if (waStatus === 'loading') {
+    return (
+      <Card style={{ padding: '12px 14px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Skeleton width={8} height={8} style={{ borderRadius: 99, flexShrink: 0 }} />
+        <div style={{ flex: 1 }}>
+          <Skeleton height={13} width={110} />
+        </div>
+      </Card>
+    )
+  }
+  return (
+    <Card style={{ padding: '12px 14px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <span style={{ width: 8, height: 8, borderRadius: 99, background: WA_STATUS_COLOR[waStatus], flexShrink: 0 }} />
+      <div style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{WA_STATUS_LABEL[waStatus]}</div>
+    </Card>
+  )
+}
+
 const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => ({ value: String(h), label: String(h).padStart(2, '0') }))
 const MINUTE_OPTIONS = Array.from({ length: 12 }, (_, i) => i * 5).map((m) => ({ value: String(m), label: String(m).padStart(2, '0') }))
 
 export function SettingsPage() {
   const navigate = useNavigate()
-  const { calendarStyle, setToast } = useAppStore(
+  const { calendarStyle, setToast, waStatus, setUpdateAvailable } = useAppStore(
     useShallow((s) => ({
       calendarStyle: s.calendarStyle,
       setToast: s.setToast,
+      waStatus: s.waStatus,
+      setUpdateAvailable: s.setUpdateAvailable,
     }))
   )
   const clearAllData = useMutation(api.uploadOps.clearAllData)
@@ -63,6 +101,28 @@ export function SettingsPage() {
   const [editingTime, setEditingTime] = useState(false)
   const [draftHour, setDraftHour] = useState('2')
   const [draftMinute, setDraftMinute] = useState('0')
+  const [appVersion, setAppVersion] = useState<string | null>(null)
+  const [checkingUpdate, setCheckingUpdate] = useState(false)
+
+  useEffect(() => {
+    getVersion().then(setAppVersion).catch(() => undefined)
+  }, [])
+
+  const handleCheckUpdates = async () => {
+    setCheckingUpdate(true)
+    try {
+      const update = await checkForUpdate()
+      if (update) {
+        setUpdateAvailable(update)
+      } else {
+        setToast("You're up to date")
+      }
+    } catch (err) {
+      setToast('Could not check for updates: ' + String(err))
+    } finally {
+      setCheckingUpdate(false)
+    }
+  }
 
   const openTimeEditor = () => {
     setDraftHour(String(sendSettings?.sendHour ?? 2))
@@ -98,6 +158,9 @@ export function SettingsPage() {
     <>
       <SectionLabel>BROADCAST</SectionLabel>
       <Row label="Send time" sub="every day" value={sendTimeLabel} onClick={openTimeEditor} />
+
+      <SectionLabel>WHATSAPP</SectionLabel>
+      <WaStatusRow waStatus={waStatus} />
     </>
   )
 
@@ -112,6 +175,14 @@ export function SettingsPage() {
 
         <SectionLabel>DATA</SectionLabel>
         <Row label="Clear all data" sub="delete all messages, uploads & send history" danger onClick={() => setConfirmClear(true)} />
+
+        <SectionLabel>ABOUT</SectionLabel>
+        <Row
+          label="Check for updates"
+          sub={appVersion ? `version ${appVersion}` : undefined}
+          value={checkingUpdate ? 'Checking…' : 'Check now'}
+          onClick={checkingUpdate ? undefined : () => { void handleCheckUpdates() }}
+        />
       </div>
 
       {/* Mobile */}
@@ -134,6 +205,14 @@ export function SettingsPage() {
 
         <SectionLabel>DATA</SectionLabel>
         <Row label="Clear all data" sub="delete all messages, uploads & send history" danger onClick={() => setConfirmClear(true)} />
+
+        <SectionLabel>ABOUT</SectionLabel>
+        <Row
+          label="Check for updates"
+          sub={appVersion ? `version ${appVersion}` : undefined}
+          value={checkingUpdate ? 'Checking…' : 'Check now'}
+          onClick={checkingUpdate ? undefined : () => { void handleCheckUpdates() }}
+        />
       </div>
 
       <AnimatePresence>
