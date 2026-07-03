@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useQuery, useMutation } from 'convex/react'
 import { useShallow } from 'zustand/react/shallow'
 import { api } from '../../../convex/_generated/api'
@@ -13,6 +13,7 @@ import { Btn } from '@/components/ui/btn'
 import { Icon } from '@/lib/icons'
 import { WhatsAppBubbleCompact } from '@/components/whatsapp-bubble'
 import { ManualSendModal } from '@/components/manual-send-modal'
+import { WaConnectionBanner } from '@/components/wa-connection-banner'
 import { useAppStore } from '@/store/app-store'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard } from './components/dashboard-stats'
@@ -139,28 +140,7 @@ export function DashboardPage() {
   if (convexMessages.length === 0) {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        {(waStatus === 'loading' || waStatus === 'disconnected') && (
-          <Card style={{ padding: 16, display: 'flex', gap: 16, alignItems: 'center', marginBottom: 14 }}>
-            <Skeleton width={96} height={96} style={{ borderRadius: 8, flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <Skeleton height={14} width="50%" />
-              <Skeleton height={12} width="80%" style={{ marginTop: 8 }} />
-            </div>
-          </Card>
-        )}
-        <AnimatePresence>
-          {waStatus === 'qr_pending' && waQr && (
-            <motion.div key="qr" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} style={{ marginBottom: 14 }}>
-              <Card style={{ padding: 16, display: 'flex', gap: 16, alignItems: 'center' }}>
-                <img src={waQr} width={96} height={96} alt="WhatsApp QR" style={{ borderRadius: 8, flexShrink: 0 }} />
-                <div>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Scan to connect WhatsApp</div>
-                  <div style={{ fontSize: 12, color: P.inkSoft, lineHeight: 1.5 }}>Open WhatsApp → Settings → Linked Devices → Link a device</div>
-                </div>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <WaConnectionBanner waStatus={waStatus} waQr={waQr} size="lg" />
         <Card style={{ padding: 60, textAlign: 'center' }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>🎺</div>
           <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>No devotional loaded</div>
@@ -247,28 +227,7 @@ export function DashboardPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-      {(waStatus === 'loading' || waStatus === 'disconnected') && (
-        <Card style={{ padding: 14, display: 'flex', gap: 14, alignItems: 'center', marginBottom: 14 }}>
-          <Skeleton width={80} height={80} style={{ borderRadius: 6, flexShrink: 0 }} />
-          <div style={{ flex: 1 }}>
-            <Skeleton height={13} width="50%" />
-            <Skeleton height={11} width="80%" style={{ marginTop: 8 }} />
-          </div>
-        </Card>
-      )}
-      <AnimatePresence>
-        {waStatus === 'qr_pending' && waQr && (
-          <motion.div key="qr" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} style={{ marginBottom: 14 }}>
-            <Card style={{ padding: 14, display: 'flex', gap: 14, alignItems: 'center' }}>
-              <img src={waQr} width={80} height={80} alt="WhatsApp QR" style={{ borderRadius: 6, flexShrink: 0 }} />
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 3 }}>Scan to connect WhatsApp</div>
-                <div style={{ fontSize: 11.5, color: P.inkSoft, lineHeight: 1.5 }}>WhatsApp → Settings → Linked Devices → Link a device</div>
-              </div>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <WaConnectionBanner waStatus={waStatus} waQr={waQr} size="sm" />
 
       {/* Desktop */}
       <div className="hidden md:block">

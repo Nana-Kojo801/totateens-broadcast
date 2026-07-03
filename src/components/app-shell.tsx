@@ -6,6 +6,7 @@ import { Toast } from '@/components/ui/toast'
 import { useAppStore } from '@/store/app-store'
 import type { WaStatus } from '@/store/app-store'
 import { checkForUpdate, installUpdate } from '@/lib/update'
+import { fetchWaStatus } from '@/lib/wa-status'
 
 const DESKTOP_NAV = [
   { path: '/',          label: 'Dashboard', icon: 'dashboard' as const, kbd: 'D' },
@@ -77,24 +78,13 @@ export function AppShell() {
   // matter which page is open — Dashboard and Settings both just read
   // `waStatus`/`waQr` from the store instead of each running their own poll.
   useEffect(() => {
-    const waServerUrl = import.meta.env.VITE_WA_SERVER_URL as string | undefined
-    if (!waServerUrl) {
-      if (waStatusRef.current !== 'disconnected') { waStatusRef.current = 'disconnected'; setWaStatus('disconnected') }
-      return
-    }
     const poll = async () => {
-      try {
-        const res = await fetch(`${waServerUrl}/status`)
-        const data = (await res.json()) as { status: string; qr: string | null }
-        const s = data.status as WaStatus
-        if (s !== waStatusRef.current) { waStatusRef.current = s; setWaStatus(s) }
-        const oldQrExisted = waQrRef.current !== null
-        const newQrExists = data.qr !== null
-        waQrRef.current = data.qr
-        if (oldQrExisted !== newQrExists) setWaQr(data.qr)
-      } catch {
-        if (waStatusRef.current !== 'disconnected') { waStatusRef.current = 'disconnected'; setWaStatus('disconnected') }
-      }
+      const { status, qr } = await fetchWaStatus()
+      if (status !== waStatusRef.current) { waStatusRef.current = status; setWaStatus(status) }
+      const oldQrExisted = waQrRef.current !== null
+      const newQrExists = qr !== null
+      waQrRef.current = qr
+      if (oldQrExisted !== newQrExists) setWaQr(qr)
     }
     void poll()
     const id = setInterval(() => void poll(), 5000)

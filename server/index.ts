@@ -7,7 +7,12 @@ import statusRouter from './routes/status'
 const app = express()
 const PORT = process.env.WA_SERVER_PORT ?? 3001
 
-app.use(cors({ origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173' }))
+// This server only ever runs as a local sidecar talking to our own desktop
+// app on the same machine — never exposed to the network — so a strict
+// origin allowlist buys no real security, just breaks things when Tauri's
+// packaged-app origin (https://tauri.localhost) differs from the dev
+// server's (http://localhost:5173). Reflecting any origin is safe here.
+app.use(cors({ origin: true }))
 app.use(express.json())
 
 app.use('/send', sendRouter)

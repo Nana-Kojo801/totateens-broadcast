@@ -8,10 +8,12 @@ import { Card } from '@/components/ui/card'
 import { Icon } from '@/lib/icons'
 import { Select } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Btn } from '@/components/ui/btn'
 import { useAppStore } from '@/store/app-store'
 import type { WaStatus } from '@/store/app-store'
 import { useShallow } from 'zustand/react/shallow'
 import { checkForUpdate } from '@/lib/update'
+import { fetchWaStatus } from '@/lib/wa-status'
 import { getVersion } from '@tauri-apps/api/app'
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -54,15 +56,21 @@ const WA_STATUS_LABEL: Record<WaStatus, string> = {
   connected: 'Connected',
   qr_pending: 'Waiting for scan',
   disconnected: 'Not connected',
+  unreachable: "Can't reach WhatsApp server",
 }
 const WA_STATUS_COLOR: Record<WaStatus, string> = {
   loading: P.inkFaint,
   connected: P.sage,
   qr_pending: P.sun,
   disconnected: P.rose,
+  unreachable: P.rose,
 }
 
 function WaStatusRow({ waStatus }: { waStatus: WaStatus }) {
+  const setWaStatus = useAppStore((s) => s.setWaStatus)
+  const setWaQr = useAppStore((s) => s.setWaQr)
+  const [retrying, setRetrying] = useState(false)
+
   if (waStatus === 'loading') {
     return (
       <Card style={{ padding: '12px 14px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -73,10 +81,24 @@ function WaStatusRow({ waStatus }: { waStatus: WaStatus }) {
       </Card>
     )
   }
+
+  const retry = async () => {
+    setRetrying(true)
+    const { status, qr } = await fetchWaStatus()
+    setWaStatus(status)
+    setWaQr(qr)
+    setRetrying(false)
+  }
+
   return (
     <Card style={{ padding: '12px 14px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
       <span style={{ width: 8, height: 8, borderRadius: 99, background: WA_STATUS_COLOR[waStatus], flexShrink: 0 }} />
       <div style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{WA_STATUS_LABEL[waStatus]}</div>
+      {waStatus === 'unreachable' && (
+        <Btn onClick={() => { void retry() }} disabled={retrying} style={{ flexShrink: 0 }}>
+          {retrying ? 'Retrying…' : 'Retry'}
+        </Btn>
+      )}
     </Card>
   )
 }

@@ -42,7 +42,10 @@ export interface PdfFile {
   uploadedAt: string
 }
 
-export type WaStatus = 'connected' | 'qr_pending' | 'disconnected' | 'loading'
+// 'unreachable' means the poll to the sidecar server itself failed (CORS,
+// network, server not running) — distinct from 'disconnected', which means
+// the server responded fine but WhatsApp itself isn't linked yet.
+export type WaStatus = 'connected' | 'qr_pending' | 'disconnected' | 'loading' | 'unreachable'
 export type UploadProgress = 'idle' | 'uploading' | 'parsing' | 'done' | 'error'
 
 interface AppState {

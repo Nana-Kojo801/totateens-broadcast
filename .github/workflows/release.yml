@@ -74,6 +74,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # Repo is private, so the shipped app needs a token to read release
+          # assets (the update manifest + installer) — baked into the build
+          # here, never committed to the repo itself.
+          VITE_GITHUB_UPDATE_TOKEN: ${{ secrets.UPDATER_READ_TOKEN }}
         with:
           tagName: v${{ steps.version.outputs.version }}
           releaseName: 'TOTATeens Broadcast v${{ steps.version.outputs.version }}'
