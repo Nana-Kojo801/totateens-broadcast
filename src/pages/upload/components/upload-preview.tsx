@@ -105,7 +105,7 @@ export function UploadDayPreview({ day }: { day: DevotionalDay }) {
         {day.body.map((p, i) => (
           <p key={i} style={{ margin: '12px 0 0' }}>{p}</p>
         ))}
-        <div style={{ fontWeight: 700, marginTop: 14 }}>PRAYER POINTS</div>
+        <div style={{ fontWeight: 700, marginTop: 14 }}>{(day.prayerLabel || 'PRAYER POINTS').toUpperCase()}</div>
         <ol style={{ paddingLeft: 18, margin: 0 }}>
           {day.prayer.map((pt, i) => (
             <li key={i} style={{ marginTop: 4 }}>{pt}</li>

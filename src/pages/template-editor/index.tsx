@@ -337,7 +337,7 @@ export function TemplateEditorPage() {
           </GroupCard>
 
           <GroupCard title="Prayer">
-            <Field label="label text"><input value={config.prayerLabel} onChange={(e) => set('prayerLabel', e.target.value)} style={fieldStyle} /></Field>
+            <Field label="default label text (a day can override this — e.g. MUST DO, Proclamation — in its own edit form)"><input value={config.prayerLabel} onChange={(e) => set('prayerLabel', e.target.value)} style={fieldStyle} /></Field>
             <Row>
               <Field label="prefix"><input value={config.prayerPrefix} onChange={(e) => set('prayerPrefix', e.target.value)} style={{ ...fieldStyle, fontFamily: P.mono }} /></Field>
               <Field label="suffix"><input value={config.prayerSuffix} onChange={(e) => set('prayerSuffix', e.target.value)} style={{ ...fieldStyle, fontFamily: P.mono }} /></Field>

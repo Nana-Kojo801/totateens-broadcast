@@ -21,6 +21,7 @@ function convexMsgToDay(msg: {
   scriptureReference: string
   body: string
   prayerPoints: string[]
+  prayerLabel?: string
   status: string
 }): DevotionalDay {
   const d = parseInt(msg.date.slice(8, 10))
@@ -36,6 +37,7 @@ function convexMsgToDay(msg: {
     ref: msg.scriptureReference,
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
     prayer: msg.prayerPoints,
+    prayerLabel: msg.prayerLabel,
     resolve: '',
     status,
   }
@@ -128,6 +130,7 @@ export function UploadPage() {
           scriptureReference: string
           body: string
           prayerPoints: string[]
+          prayerLabel?: string
           vocabWord?: string
           vocabDefinition?: string
           quote?: string
@@ -154,6 +157,7 @@ export function UploadPage() {
           scriptureReference: d.scriptureReference,
           body: d.body,
           prayerPoints: d.prayerPoints,
+          prayerLabel: d.prayerLabel,
           vocabWord: d.vocabWord,
           vocabDefinition: d.vocabDefinition,
           quote: d.quote,

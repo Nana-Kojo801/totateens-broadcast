@@ -11,6 +11,11 @@ export default defineSchema({
     scriptureReference: v.string(),
     body: v.string(),
     prayerPoints: v.array(v.string()),
+    // Overrides the template's default section heading (e.g. "MUST DO",
+    // "Proclamation") for this specific day — the content underneath is
+    // still whatever's in `prayerPoints`. Falls back to the active
+    // template's `prayerLabel` when not set.
+    prayerLabel: v.optional(v.string()),
     vocabWord: v.optional(v.string()),
     vocabDefinition: v.optional(v.string()),
     quote: v.optional(v.string()),

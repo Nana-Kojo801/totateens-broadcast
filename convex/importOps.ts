@@ -16,6 +16,7 @@ export const startImport = mutation({
         scriptureReference: v.string(),
         body: v.string(),
         prayerPoints: v.array(v.string()),
+        prayerLabel: v.optional(v.string()),
         vocabWord: v.optional(v.string()),
         vocabDefinition: v.optional(v.string()),
         quote: v.optional(v.string()),

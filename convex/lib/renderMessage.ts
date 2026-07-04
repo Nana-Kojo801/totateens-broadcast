@@ -29,6 +29,7 @@ export interface RenderableDay {
   scriptureReference: string
   body: string
   prayerPoints: string[]
+  prayerLabel?: string
   vocabWord?: string
   vocabDefinition?: string
   quote?: string
@@ -57,7 +58,7 @@ export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
   if (cfg.separatorB) { lines.push(''); lines.push(cfg.separatorB) }
   lines.push('')
 
-  lines.push(`${cfg.prayerPrefix}${applyFontStyle(cfg.prayerLabel, cfg.prayerStyle)}${cfg.prayerSuffix}`)
+  lines.push(`${cfg.prayerPrefix}${applyFontStyle(day.prayerLabel?.trim() || cfg.prayerLabel, cfg.prayerStyle)}${cfg.prayerSuffix}`)
   if (cfg.prayerNumbering) {
     for (const [i, pt] of day.prayerPoints.entries()) lines.push(`*${i + 1}. ${pt}*`)
   } else {

@@ -29,6 +29,7 @@ function convexMsgToDay(msg: {
   scriptureReference: string
   body: string
   prayerPoints: string[]
+  prayerLabel?: string
   status: string
 }): DevotionalDay {
   const d = parseInt(msg.date.slice(8, 10))
@@ -44,6 +45,7 @@ function convexMsgToDay(msg: {
     ref: msg.scriptureReference,
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
     prayer: msg.prayerPoints,
+    prayerLabel: msg.prayerLabel,
     resolve: '',
     status,
   }
@@ -152,6 +154,7 @@ export function MessagesPage() {
       scriptureReference: pendingEdit.ref,
       body: pendingEdit.body.join('\n\n'),
       prayerPoints: pendingEdit.prayer,
+      prayerLabel: pendingEdit.prayerLabel,
     }, activeTemplate?.config ?? DEFAULT_TEMPLATE_CONFIG)
     await updateMessageMut({
       id: convexMsg._id as Id<'messages'>,
@@ -160,6 +163,7 @@ export function MessagesPage() {
       scriptureReference: pendingEdit.ref,
       body: pendingEdit.body.join('\n\n'),
       prayerPoints: pendingEdit.prayer,
+      prayerLabel: pendingEdit.prayerLabel,
       formattedMessage: newFormatted,
     })
     setIsEdit(false)
@@ -218,6 +222,7 @@ export function MessagesPage() {
         scriptureReference: editDay.ref,
         body: editDay.body.join('\n\n'),
         prayerPoints: editDay.prayer,
+        prayerLabel: editDay.prayerLabel,
       }, activeTemplate?.config ?? DEFAULT_TEMPLATE_CONFIG)
     : convexMsg.formattedMessage
 
