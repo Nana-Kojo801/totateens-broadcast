@@ -1,6 +1,6 @@
 import { P } from '@/lib/tokens'
 import { Btn } from '@/components/ui/btn'
-import type { DevotionalDay } from '@/store/app-store'
+import type { DevotionalDay, OtherSection } from '@/store/app-store'
 
 interface EditFieldProps {
   label: string
@@ -29,6 +29,42 @@ function EditField({ label, value, multiline, mono, onChange }: EditFieldProps) 
       ) : (
         <input value={value} onChange={e => onChange(e.target.value)} style={inputStyle} />
       )}
+    </div>
+  )
+}
+
+function OtherSectionsEditor({ sections, onChange }: { sections: OtherSection[]; onChange: (next: OtherSection[]) => void }) {
+  const update = (i: number, patch: Partial<OtherSection>) => onChange(sections.map((s, idx) => (idx === i ? { ...s, ...patch } : s)))
+  const remove = (i: number) => onChange(sections.filter((_, idx) => idx !== i))
+  const add = () => onChange([...sections, { label: '', content: '' }])
+
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <FieldLabel>extra sections (Act, Vocabulary Hunt, Quote, etc.)</FieldLabel>
+        <button type="button" onClick={add} style={{ fontSize: 11, color: P.sage, fontWeight: 600, background: 'transparent', border: 'none', cursor: 'pointer' }}>+ add section</button>
+      </div>
+      {sections.length === 0 && (
+        <div style={{ fontSize: 12, color: P.inkFaint, marginTop: 6 }}>None — this day only has the prayer section.</div>
+      )}
+      {sections.map((s, i) => (
+        <div key={i} style={{ marginTop: 8, border: `1px solid ${P.line}`, borderRadius: 8, padding: 10 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              value={s.label}
+              placeholder="heading, e.g. VOCABULARY HUNT"
+              onChange={e => update(i, { label: e.target.value.toUpperCase() })}
+              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, fontFamily: P.mono, background: 'transparent', color: P.ink }}
+            />
+            <button type="button" onClick={() => remove(i)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: P.rose, fontSize: 11 }}>remove</button>
+          </div>
+          <textarea
+            value={s.content}
+            onChange={e => update(i, { content: e.target.value })}
+            style={{ marginTop: 6, width: '100%', border: `1px solid ${P.lineSoft}`, borderRadius: 6, padding: 8, fontSize: 13, fontFamily: P.sans, minHeight: 50, resize: 'vertical', outline: 'none', color: P.ink, boxSizing: 'border-box' }}
+          />
+        </div>
+      ))}
     </div>
   )
 }
@@ -73,6 +109,7 @@ export function MessageEditForm({ day, onChange, onSave, onCancel, mobile }: Pro
             </div>
           ))}
         </div>
+        <OtherSectionsEditor sections={day.otherSections ?? []} onChange={v => setField('otherSections', v)} />
         <EditField label="what's your resolve?" value={day.resolve} multiline onChange={v => setField('resolve', v)} />
         <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
           <Btn onClick={onCancel} style={{ flex: 1, justifyContent: 'center' }}>Cancel</Btn>
@@ -118,6 +155,7 @@ export function MessageEditForm({ day, onChange, onSave, onCancel, mobile }: Pro
           <EditField label="what's your resolve?" value={day.resolve} multiline onChange={v => setField('resolve', v)} />
         </div>
       </div>
+      <OtherSectionsEditor sections={day.otherSections ?? []} onChange={v => setField('otherSections', v)} />
     </>
   )
 }

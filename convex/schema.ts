@@ -17,6 +17,10 @@ export default defineSchema({
     // underneath is still whatever's in `prayerPoints`. Falls back to the
     // active template's rendered default when not set.
     prayerLabel: v.optional(v.string()),
+    // Extra labeled sections beyond prayer (e.g. "Act", "Vocabulary Hunt",
+    // "Quote") — free-form per day since the source PDFs don't use a fixed
+    // set of secondary headings. Rendered in order after the prayer section.
+    otherSections: v.optional(v.array(v.object({ label: v.string(), content: v.string() }))),
     formattedMessage: v.string(),
     status: v.union(
       v.literal('scheduled'),

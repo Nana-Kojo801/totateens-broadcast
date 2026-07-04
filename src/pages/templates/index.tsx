@@ -25,7 +25,7 @@ const SAMPLE_DAY = {
 export function TemplatesPage() {
   const navigate = useNavigate()
   const setToast = useAppStore((s: { setToast: (msg: string | null) => void }) => s.setToast)
-  const [confirmDelete, setConfirmDelete] = useState<Id<'messageTemplates'> | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<{ id: Id<'messageTemplates'>; isActive: boolean } | null>(null)
 
   const templates = useQuery(api.templates.list)
   const setActiveMut = useMutation(api.templates.setActive)
@@ -123,10 +123,9 @@ export function TemplatesPage() {
               )}
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); setConfirmDelete(t._id) }}
-                disabled={t.isActive}
-                title={t.isActive ? 'Set a different template active before deleting this one' : 'Delete template'}
-                style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${P.line}`, background: P.surface, cursor: t.isActive ? 'not-allowed' : 'pointer', display: 'grid', placeItems: 'center', opacity: t.isActive ? 0.4 : 1, flexShrink: 0 }}
+                onClick={(e) => { e.stopPropagation(); setConfirmDelete({ id: t._id, isActive: t.isActive }) }}
+                title="Delete template"
+                style={{ width: 28, height: 28, borderRadius: 7, border: `1px solid ${P.line}`, background: P.surface, cursor: 'pointer', display: 'grid', placeItems: 'center', flexShrink: 0 }}
               >
                 <Icon name="trash" size={12} color={P.inkFaint} />
               </button>
@@ -146,12 +145,16 @@ export function TemplatesPage() {
             style={{ background: P.surface, borderRadius: 12, padding: 22, width: 360, maxWidth: '90%', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}
           >
             <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Remove this template?</div>
-            <div style={{ fontSize: 13, color: P.inkSoft, marginBottom: 18 }}>This cannot be undone.</div>
+            <div style={{ fontSize: 13, color: P.inkSoft, marginBottom: 18 }}>
+              {confirmDelete.isActive
+                ? "This is the active template. Once it's deleted, broadcasts will use the default TOTATeens format until you activate another template. This cannot be undone."
+                : 'This cannot be undone.'}
+            </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <Btn onClick={() => setConfirmDelete(null)} style={{ flex: 1, justifyContent: 'center' }}>Cancel</Btn>
               <Btn
                 variant="primary"
-                onClick={() => deleteTemplate(confirmDelete)}
+                onClick={() => deleteTemplate(confirmDelete.id)}
                 style={{ flex: 1, justifyContent: 'center', background: P.rose, borderColor: P.rose }}
               >
                 Remove

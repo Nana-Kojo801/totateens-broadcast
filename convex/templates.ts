@@ -87,11 +87,10 @@ export const seedDefault = mutation({
 export const remove = mutation({
   args: { id: v.id('messageTemplates') },
   handler: async (ctx, { id }) => {
-    const template = await ctx.db.get(id)
-    if (!template) return
-    if (template.isActive) {
-      throw new Error('Cannot delete the active template — set a different one active first.')
-    }
+    // Deleting the active template is allowed — every renderer falls back to
+    // DEFAULT_TEMPLATE_CONFIG when no template is active, so there's no
+    // broken state to guard against. The frontend warns the user about this
+    // before they confirm.
     await ctx.db.delete(id)
   },
 })

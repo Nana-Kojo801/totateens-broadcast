@@ -30,6 +30,7 @@ function convexMsgToDay(msg: {
   body: string
   prayerPoints: string[]
   prayerLabel?: string
+  otherSections?: { label: string; content: string }[]
   status: string
 }): DevotionalDay {
   const d = parseInt(msg.date.slice(8, 10))
@@ -46,6 +47,7 @@ function convexMsgToDay(msg: {
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
     prayer: msg.prayerPoints,
     prayerLabel: msg.prayerLabel,
+    otherSections: msg.otherSections,
     resolve: '',
     status,
   }

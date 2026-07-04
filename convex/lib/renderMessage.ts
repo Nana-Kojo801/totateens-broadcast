@@ -21,6 +21,11 @@ export function formatDateLabel(dateStr: string): string {
   return `${dow}, ${ordinalSuffix(day)} ${mon} ${year}`
 }
 
+export interface OtherSection {
+  label: string
+  content: string
+}
+
 export interface RenderableDay {
   date: string
   title: string
@@ -30,6 +35,7 @@ export interface RenderableDay {
   body: string
   prayerPoints: string[]
   prayerLabel?: string
+  otherSections?: OtherSection[]
 }
 
 // The template's prefix/suffix/style combo (e.g. two praying-hands emoji
@@ -70,6 +76,14 @@ export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
     for (const [i, pt] of day.prayerPoints.entries()) lines.push(`*${i + 1}. ${pt}*`)
   } else {
     lines.push(day.prayerPoints.join('\n\n'))
+  }
+
+  for (const section of day.otherSections ?? []) {
+    if (!section.label.trim() && !section.content.trim()) continue
+    if (cfg.separatorB) lines.push(cfg.separatorB)
+    lines.push('')
+    lines.push(section.label.toUpperCase())
+    lines.push(section.content)
   }
 
   if (cfg.separatorB) lines.push(cfg.separatorB)

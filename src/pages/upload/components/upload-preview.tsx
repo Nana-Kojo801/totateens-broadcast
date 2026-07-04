@@ -112,6 +112,12 @@ export function UploadDayPreview({ day }: { day: DevotionalDay }) {
           ))}
         </ol>
         <div style={{ marginTop: 14, fontWeight: 700, fontStyle: 'italic' }}>{day.resolve}</div>
+        {(day.otherSections ?? []).map((s, i) => (
+          <div key={i}>
+            <div style={{ fontWeight: 700, marginTop: 14 }}>{s.label.toUpperCase()}</div>
+            <p style={{ margin: '4px 0 0' }}>{s.content}</p>
+          </div>
+        ))}
       </div>
     </Card>
   )

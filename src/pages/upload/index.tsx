@@ -13,6 +13,10 @@ import { UploadDropzone } from './components/upload-dropzone'
 import { UploadDayGrid, UploadDayList, UploadDayPreview, UploadMobileDayGrid } from './components/upload-preview'
 import type { DevotionalDay, DayStatus } from '@/store/app-store'
 
+const KNOWN_DAY_FIELDS = new Set([
+  'date', 'title', 'subtitle', 'scripture', 'scriptureReference', 'body', 'prayerPoints', 'prayerLabel', 'otherSections',
+])
+
 function convexMsgToDay(msg: {
   _id: string
   date: string
@@ -22,6 +26,7 @@ function convexMsgToDay(msg: {
   body: string
   prayerPoints: string[]
   prayerLabel?: string
+  otherSections?: { label: string; content: string }[]
   status: string
 }): DevotionalDay {
   const d = parseInt(msg.date.slice(8, 10))
@@ -38,6 +43,7 @@ function convexMsgToDay(msg: {
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
     prayer: msg.prayerPoints,
     prayerLabel: msg.prayerLabel,
+    otherSections: msg.otherSections,
     resolve: '',
     status,
   }
@@ -131,15 +137,20 @@ export function UploadPage() {
           body: string
           prayerPoints: string[]
           prayerLabel?: string
+          otherSections?: Array<{ label: string; content: string }>
         }>
       }
 
       if (typeof parsed.monthYear !== 'string' || !Array.isArray(parsed.days) || parsed.days.length === 0) {
         throw new Error('Expected { monthYear: string, days: [...] }')
       }
+      const unknownFields = new Set<string>()
       for (const d of parsed.days) {
         if (!d.date || !d.title || !d.body || !Array.isArray(d.prayerPoints)) {
           throw new Error(`Day ${d.date ?? '?'} is missing required fields`)
+        }
+        for (const key of Object.keys(d)) {
+          if (!KNOWN_DAY_FIELDS.has(key)) unknownFields.add(key)
         }
       }
 
@@ -155,12 +166,14 @@ export function UploadPage() {
           body: d.body,
           prayerPoints: d.prayerPoints,
           prayerLabel: d.prayerLabel,
+          otherSections: d.otherSections,
         })),
       })
 
       setImportingJson(false)
       setViewMonth(parsed.monthYear)
-      setToast(`Imported ${result.imported} days from ${f.name}`)
+      const ignoredNote = unknownFields.size > 0 ? ` (ignored unsupported field${unknownFields.size > 1 ? 's' : ''}: ${[...unknownFields].join(', ')})` : ''
+      setToast(`Imported ${result.imported} days from ${f.name}${ignoredNote}`)
     } catch (err) {
       setImportingJson(false)
       setToast('Import failed: ' + String(err))

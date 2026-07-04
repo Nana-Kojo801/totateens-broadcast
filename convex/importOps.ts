@@ -17,6 +17,7 @@ export const startImport = mutation({
         body: v.string(),
         prayerPoints: v.array(v.string()),
         prayerLabel: v.optional(v.string()),
+        otherSections: v.optional(v.array(v.object({ label: v.string(), content: v.string() }))),
       }),
     ),
   },

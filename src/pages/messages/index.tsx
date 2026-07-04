@@ -30,6 +30,7 @@ function convexMsgToDay(msg: {
   body: string
   prayerPoints: string[]
   prayerLabel?: string
+  otherSections?: { label: string; content: string }[]
   status: string
 }): DevotionalDay {
   const d = parseInt(msg.date.slice(8, 10))
@@ -46,6 +47,7 @@ function convexMsgToDay(msg: {
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
     prayer: msg.prayerPoints,
     prayerLabel: msg.prayerLabel,
+    otherSections: msg.otherSections,
     resolve: '',
     status,
   }
@@ -150,6 +152,7 @@ export function MessagesPage() {
       // so editing it means tweaking the emoji/text that's already there,
       // not guessing what the template would've produced.
       prayerLabel: (day.prayerLabel || defaultPrayerHeading(templateConfig)).toUpperCase(),
+      otherSections: (day.otherSections ?? []).map((s) => ({ ...s })),
     })
     setIsEdit(true)
   }
@@ -164,6 +167,7 @@ export function MessagesPage() {
       body: pendingEdit.body.join('\n\n'),
       prayerPoints: pendingEdit.prayer,
       prayerLabel: pendingEdit.prayerLabel,
+      otherSections: pendingEdit.otherSections,
     }, templateConfig)
     await updateMessageMut({
       id: convexMsg._id as Id<'messages'>,
@@ -173,6 +177,7 @@ export function MessagesPage() {
       body: pendingEdit.body.join('\n\n'),
       prayerPoints: pendingEdit.prayer,
       prayerLabel: pendingEdit.prayerLabel,
+      otherSections: pendingEdit.otherSections,
       formattedMessage: newFormatted,
     })
     setIsEdit(false)
@@ -232,6 +237,7 @@ export function MessagesPage() {
         body: editDay.body.join('\n\n'),
         prayerPoints: editDay.prayer,
         prayerLabel: editDay.prayerLabel,
+        otherSections: editDay.otherSections,
       }, templateConfig)
     : convexMsg.formattedMessage
 

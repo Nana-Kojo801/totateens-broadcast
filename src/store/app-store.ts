@@ -4,6 +4,11 @@ import type { Update } from '@tauri-apps/plugin-updater'
 
 export type DayStatus = 'sent' | 'today' | 'upcoming' | 'missing'
 
+export interface OtherSection {
+  label: string
+  content: string
+}
+
 export interface DevotionalDay {
   _id?: string
   d: number
@@ -17,6 +22,9 @@ export interface DevotionalDay {
   // prefix/suffix applied. Falls back to the active template's rendered
   // default when unset.
   prayerLabel?: string
+  // Extra labeled sections beyond prayer (Act, Vocabulary Hunt, Quote,
+  // whatever the source uses that day) — rendered in order after prayer.
+  otherSections?: OtherSection[]
   resolve: string
   status: DayStatus
   edited?: boolean

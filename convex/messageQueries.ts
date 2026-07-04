@@ -75,6 +75,7 @@ export const updateMessage = mutation({
     body: v.optional(v.string()),
     prayerPoints: v.optional(v.array(v.string())),
     prayerLabel: v.optional(v.string()),
+    otherSections: v.optional(v.array(v.object({ label: v.string(), content: v.string() }))),
     formattedMessage: v.optional(v.string()),
   },
   handler: async (ctx, { id, ...updates }) => {
