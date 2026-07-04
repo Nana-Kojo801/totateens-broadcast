@@ -5,7 +5,10 @@ import sendRouter from './routes/send'
 import statusRouter from './routes/status'
 
 const app = express()
-const PORT = process.env.WA_SERVER_PORT ?? 3001
+// Most hosting platforms assign the port via `PORT` and require binding to
+// it — fall back to our own WA_SERVER_PORT (useful when running two of our
+// own services on one box) and then a plain local default.
+const PORT = process.env.PORT ?? process.env.WA_SERVER_PORT ?? 3001
 
 app.use(cors({ origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173' }))
 app.use(express.json())
