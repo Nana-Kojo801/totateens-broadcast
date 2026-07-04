@@ -12,9 +12,13 @@ dist
 dist-ssr
 *.local
 
-# Env files (secrets)
+# Env files (secrets) — .env.production is the exception: it only holds
+# non-sensitive, build-required values (Convex's public client URL, the
+# fixed localhost sidecar port) that every build needs, including CI, so
+# it's committed rather than gitignored.
 .env
 .env.*
+!.env.production
 
 # WhatsApp session — never commit real credentials
 .wwebjs_auth
