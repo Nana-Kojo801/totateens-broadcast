@@ -233,7 +233,7 @@ export function DashboardPage() {
                 <WhatsAppBubbleCompact text={todayFormatted} />
                 <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                   <Btn onClick={() => goToMessage(todayNum)} style={{ flex: 1, justifyContent: 'center' }}>
-                    Open full preview <Icon name="arrowRight" size={12} />
+                    Full Preview <Icon name="arrowRight" size={12} />
                   </Btn>
                   <Btn variant="primary" onClick={() => setManualSendDay(todayNum)} style={{ flex: 1, justifyContent: 'center' }}>
                     <Icon name="send" size={12} color="#FFF" /> {today.status === 'sent' ? 'Resend' : 'Send now'}

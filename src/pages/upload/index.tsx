@@ -6,12 +6,85 @@ import { P } from '@/lib/tokens'
 import { Card } from '@/components/ui/card'
 import { Btn } from '@/components/ui/btn'
 import { Icon } from '@/lib/icons'
+import { Tag } from '@/components/ui/tag'
 import { useAppStore } from '@/store/app-store'
 import { useShallow } from 'zustand/react/shallow'
 import { Skeleton } from '@/components/ui/skeleton'
+import { monthName } from '@/lib/utils'
 import { UploadDropzone } from './components/upload-dropzone'
 import { UploadDayGrid, UploadDayList, UploadDayPreview, UploadMobileDayGrid } from './components/upload-preview'
 import type { DevotionalDay, DayStatus } from '@/store/app-store'
+
+function monthYearLabel(monthYear: string): string {
+  return `${monthName(Number(monthYear.slice(5, 7)))} ${monthYear.slice(0, 4)}`
+}
+
+interface ImportedMonth {
+  monthYear: string
+  fileName: string
+  daysDetected: number
+  uploadedAt: number
+  status: string
+}
+
+function ImportsListView({ uploads, loading, currentMonthYear, viewMonth, onSelect, onClose }: {
+  uploads: ImportedMonth[]
+  loading: boolean
+  currentMonthYear: string
+  viewMonth: string
+  onSelect: (monthYear: string) => void
+  onClose: () => void
+}) {
+  return (
+    <div style={{ padding: '0 16px 16px' }} className="md:p-0">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <button type="button" onClick={onClose} style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${P.line}`, background: P.surface, cursor: 'pointer', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+          <Icon name="chevronLeft" size={14} color={P.inkSoft} />
+        </button>
+        <div style={{ fontSize: 15, fontWeight: 600 }}>All imports</div>
+      </div>
+
+      {loading && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {Array.from({ length: 3 }, (_, i) => (
+            <Card key={i} style={{ padding: 14 }}><Skeleton height={13} width="40%" /><Skeleton height={11} width="60%" style={{ marginTop: 8 }} /></Card>
+          ))}
+        </div>
+      )}
+
+      {!loading && uploads.length === 0 && (
+        <Card style={{ padding: 30, textAlign: 'center', fontSize: 13, color: P.inkSoft, background: P.bgSoft, border: `1px dashed ${P.line}` }}>
+          No imports yet.
+        </Card>
+      )}
+
+      {!loading && uploads.map((u) => (
+        <Card
+          key={u.monthYear}
+          onClick={() => onSelect(u.monthYear)}
+          style={{
+            padding: 14, marginBottom: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12,
+            borderColor: u.monthYear === viewMonth ? P.sage : P.line,
+            boxShadow: u.monthYear === viewMonth ? `0 0 0 1px ${P.sage}` : 'none',
+          }}
+        >
+          <div style={{ width: 38, height: 48, borderRadius: 5, background: P.sageTint, color: P.sage, display: 'grid', placeItems: 'center', fontFamily: P.mono, fontSize: 10, fontWeight: 700, flexShrink: 0 }}>JSON</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 600 }}>{monthYearLabel(u.monthYear)}</div>
+              {u.monthYear === currentMonthYear && <Tag bg={P.sunTint} color={P.sun}>CURRENT</Tag>}
+              {u.status !== 'complete' && <Tag bg={P.roseTint} color={P.rose}>{u.status.toUpperCase()}</Tag>}
+            </div>
+            <div style={{ fontSize: 11, color: P.inkSoft, fontFamily: P.mono, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {u.daysDetected} days · {u.fileName} · {new Date(u.uploadedAt).toLocaleDateString()}
+            </div>
+          </div>
+          <Icon name="chevronRight" size={14} color={P.inkFaint} />
+        </Card>
+      ))}
+    </div>
+  )
+}
 
 const KNOWN_DAY_FIELDS = new Set([
   'date', 'title', 'subtitle', 'scripture', 'scriptureReference', 'body', 'prayerPoints', 'prayerLabel', 'otherSections',
@@ -56,9 +129,11 @@ export function UploadPage() {
   const jsonInputRef = useRef<HTMLInputElement>(null)
   const [importingJson, setImportingJson] = useState(false)
   const [selectedDay, setSelectedDay] = useState(new Date().getDate())
+  const [showAllImports, setShowAllImports] = useState(false)
 
   const startImport = useMutation(api.importOps.startImport)
   const startReformat = useMutation(api.reformatOps.startReformat)
+  const uploads = useQuery(api.uploadOps.listUploads)
   const convexMessages = useQuery(api.messageQueries.listByMonth, { monthYear: viewMonth })
 
   if (convexMessages === undefined) {
@@ -117,6 +192,19 @@ export function UploadPage() {
   }
 
   const previewDay = days[selectedDay - 1] ?? days[0]
+
+  // `listUploads` is already ordered most-recent-first, so keeping the
+  // first occurrence per month gives the latest import for that month —
+  // re-imports of the same month collapse into one row instead of showing
+  // duplicates.
+  const importedMonths: ImportedMonth[] = []
+  const seenMonths = new Set<string>()
+  for (const u of uploads ?? []) {
+    if (seenMonths.has(u.monthYear)) continue
+    seenMonths.add(u.monthYear)
+    importedMonths.push({ monthYear: u.monthYear, fileName: u.fileName, daysDetected: u.daysDetected, uploadedAt: u.uploadedAt, status: u.status })
+  }
+  const realCurrentMonthYear = new Date().toISOString().slice(0, 7)
 
   const onJsonPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -180,6 +268,21 @@ export function UploadPage() {
     }
   }
 
+  if (showAllImports) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <ImportsListView
+          uploads={importedMonths}
+          loading={uploads === undefined}
+          currentMonthYear={realCurrentMonthYear}
+          viewMonth={viewMonth}
+          onSelect={(monthYear) => { setViewMonth(monthYear); setShowAllImports(false) }}
+          onClose={() => setShowAllImports(false)}
+        />
+      </motion.div>
+    )
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
       {/* Desktop */}
@@ -196,6 +299,7 @@ export function UploadPage() {
                         <div style={{ fontSize: 13, fontWeight: 600 }}>Devotionals loaded</div>
                         <div style={{ fontSize: 11, color: P.inkSoft, fontFamily: P.mono, marginTop: 3 }}>{days.length} days · {viewMonth}</div>
                       </div>
+                      <Btn onClick={() => setShowAllImports(true)} title="Browse every imported month"><Icon name="history" size={12} /> All imports</Btn>
                       <Btn onClick={handleReformat} title="Re-run formatting with the currently active template"><Icon name="flash" size={12} /> Re-format</Btn>
                       <Btn onClick={() => jsonInputRef.current?.click()} disabled={importingJson} style={{ borderStyle: 'dashed', color: P.sage }}>
                         {importingJson ? 'Importing…' : 'Import new'}
@@ -213,6 +317,13 @@ export function UploadPage() {
           ) : (
             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <UploadDropzone onPickJson={() => jsonInputRef.current?.click()} jsonImporting={importingJson} viewport="desktop" />
+              {importedMonths.length > 0 && (
+                <div style={{ textAlign: 'center', marginTop: 12 }}>
+                  <button type="button" onClick={() => setShowAllImports(true)} style={{ fontSize: 12, color: P.sage, fontWeight: 600, background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                    View {importedMonths.length} previously imported month{importedMonths.length > 1 ? 's' : ''} →
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -229,6 +340,9 @@ export function UploadPage() {
                   <div style={{ fontSize: 12.5, fontWeight: 600 }}>{days.length} days loaded</div>
                   <div style={{ fontSize: 10.5, color: P.inkSoft, fontFamily: P.mono, marginTop: 3 }}>{viewMonth}</div>
                 </div>
+                <button type="button" onClick={() => setShowAllImports(true)} title="Browse every imported month" style={{ width: 32, height: 32, borderRadius: 8, border: `1px solid ${P.line}`, background: P.surface, cursor: 'pointer', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                  <Icon name="history" size={14} color={P.inkSoft} />
+                </button>
               </Card>
 
               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
@@ -243,6 +357,13 @@ export function UploadPage() {
           ) : (
             <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <UploadDropzone onPickJson={() => jsonInputRef.current?.click()} jsonImporting={importingJson} viewport="mobile" />
+              {importedMonths.length > 0 && (
+                <div style={{ textAlign: 'center', marginTop: 12 }}>
+                  <button type="button" onClick={() => setShowAllImports(true)} style={{ fontSize: 12, color: P.sage, fontWeight: 600, background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                    View {importedMonths.length} previously imported month{importedMonths.length > 1 ? 's' : ''} →
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
