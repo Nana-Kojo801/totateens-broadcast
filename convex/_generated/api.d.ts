@@ -16,7 +16,6 @@ import type * as lib_renderMessage from "../lib/renderMessage.js";
 import type * as lib_templateConfig from "../lib/templateConfig.js";
 import type * as lib_unicodeFonts from "../lib/unicodeFonts.js";
 import type * as messageQueries from "../messageQueries.js";
-import type * as messages from "../messages.js";
 import type * as reformatOps from "../reformatOps.js";
 import type * as templateParse from "../templateParse.js";
 import type * as templates from "../templates.js";
@@ -38,7 +37,6 @@ declare const fullApi: ApiFromModules<{
   "lib/templateConfig": typeof lib_templateConfig;
   "lib/unicodeFonts": typeof lib_unicodeFonts;
   messageQueries: typeof messageQueries;
-  messages: typeof messages;
   reformatOps: typeof reformatOps;
   templateParse: typeof templateParse;
   templates: typeof templates;

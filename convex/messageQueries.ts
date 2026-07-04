@@ -171,19 +171,6 @@ export const insertMessageInternal = internalMutation({
   },
 })
 
-export const logSend = internalMutation({
-  args: {
-    messageId: v.id('messages'),
-    groupId: v.id('groups'),
-    sentAt: v.number(),
-    status: v.union(v.literal('success'), v.literal('failed')),
-    error: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    await ctx.db.insert('sendHistory', args)
-  },
-})
-
 export const manualSend = mutation({
   args: {
     messageId: v.id('messages'),

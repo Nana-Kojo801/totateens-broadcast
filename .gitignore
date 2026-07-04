@@ -20,6 +20,9 @@ dist-ssr
 .wwebjs_auth
 .wwebjs_cache
 
+# Tauri sidecar build output
+src-tauri/binaries
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

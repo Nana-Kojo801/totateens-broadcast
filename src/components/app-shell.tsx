@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { P } from '@/lib/tokens'
 import { Icon } from '@/lib/icons'
@@ -6,6 +6,7 @@ import { Toast } from '@/components/ui/toast'
 import { useAppStore } from '@/store/app-store'
 import type { WaStatus } from '@/store/app-store'
 import { fetchWaStatus } from '@/lib/wa-status'
+import { checkForUpdate, installUpdate } from '@/lib/update'
 
 const DESKTOP_NAV = [
   { path: '/',          label: 'Dashboard', icon: 'dashboard' as const, kbd: 'D' },
@@ -54,8 +55,12 @@ function isMoreSubpage(pathname: string): boolean {
 
 export function AppShell() {
   const toast = useAppStore((s) => s.toast)
+  const setToast = useAppStore((s) => s.setToast)
   const setWaStatus = useAppStore((s) => s.setWaStatus)
   const setWaQr = useAppStore((s) => s.setWaQr)
+  const updateAvailable = useAppStore((s) => s.updateAvailable)
+  const setUpdateAvailable = useAppStore((s) => s.setUpdateAvailable)
+  const [installingUpdate, setInstallingUpdate] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -85,6 +90,26 @@ export function AppShell() {
     const id = setInterval(() => void poll(), 5000)
     return () => clearInterval(id)
   }, [setWaStatus, setWaQr])
+
+  // One-time check on launch. Silently no-ops outside a real Tauri build
+  // (e.g. plain `pnpm dev:client` in a browser) since the updater plugin
+  // isn't available there.
+  useEffect(() => {
+    checkForUpdate()
+      .then((update) => { if (update) setUpdateAvailable(update) })
+      .catch(() => undefined)
+  }, [setUpdateAvailable])
+
+  const handleInstallUpdate = async () => {
+    if (!updateAvailable) return
+    setInstallingUpdate(true)
+    try {
+      await installUpdate(updateAvailable)
+    } catch (err) {
+      setInstallingUpdate(false)
+      setToast('Update failed: ' + String(err))
+    }
+  }
 
   return (
     <>
@@ -220,6 +245,35 @@ export function AppShell() {
           </div>
         </div>
       </div>
+
+      {updateAvailable && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(14,20,16,0.45)', zIndex: 9500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ background: P.surface, borderRadius: 12, padding: 22, width: 360, maxWidth: '90%', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Update available</div>
+            <div style={{ fontSize: 13, color: P.inkSoft, marginBottom: 18, lineHeight: 1.5 }}>
+              Version {updateAvailable.version} is ready to install. The app will restart automatically.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                type="button"
+                onClick={() => setUpdateAvailable(null)}
+                disabled={installingUpdate}
+                style={{ flex: 1, padding: '10px 0', borderRadius: 7, border: `1px solid ${P.line}`, background: P.surface, fontSize: 13, fontWeight: 600, cursor: installingUpdate ? 'default' : 'pointer', opacity: installingUpdate ? 0.5 : 1 }}
+              >
+                Later
+              </button>
+              <button
+                type="button"
+                onClick={() => { void handleInstallUpdate() }}
+                disabled={installingUpdate}
+                style={{ flex: 1, padding: '10px 0', borderRadius: 7, border: `1px solid ${P.sageDeep}`, background: P.sage, color: '#FFF', fontSize: 13, fontWeight: 600, cursor: installingUpdate ? 'default' : 'pointer', opacity: installingUpdate ? 0.7 : 1 }}
+              >
+                {installingUpdate ? 'Installing…' : 'Update & restart'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Toast message={toast} />
     </>

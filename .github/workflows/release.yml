@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: release-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Cache pkg base binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.pkg-cache
+          key: pkg-cache-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pkg-cache-
+
+      - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+        run: pnpm install --frozen-lockfile
+
+      # pkg's own fetch of its prebuilt base Node binary is occasionally
+      # flaky/slow on GH Actions' network even with ~/.pkg-cache warm — cap
+      # each attempt so a hang doesn't stall the whole job, retry instead.
+      - name: Build WhatsApp server sidecar
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 4
+          max_attempts: 3
+          command: pnpm build:sidecar
+
+      # Every push to main ships a release, so the version is derived from
+      # the run number rather than hand-bumped — major.minor stays whatever
+      # is checked into tauri.conf.json, patch becomes this run's number.
+      - name: Compute release version
+        id: version
+        shell: bash
+        run: |
+          base=$(jq -r '.version' src-tauri/tauri.conf.json | cut -d. -f1,2)
+          version="${base}.${{ github.run_number }}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          jq --arg v "$version" '.version = $v' src-tauri/tauri.conf.json > tmp.json && mv tmp.json src-tauri/tauri.conf.json
+          jq --arg v "$version" '.version = $v' package.json > tmp.json && mv tmp.json package.json
+
+      - name: Tag release
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: v${{ steps.version.outputs.version }}
+          releaseName: 'TOTATeens Broadcast v${{ steps.version.outputs.version }}'
+          releaseDraft: false
+          prerelease: false
+          args: --target x86_64-pc-windows-msvc
