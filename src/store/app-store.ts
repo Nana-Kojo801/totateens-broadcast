@@ -12,8 +12,10 @@ export interface DevotionalDay {
   ref: string
   body: string[]
   prayer: string[]
-  // Overrides the "Prayer Points" heading for this day (e.g. "MUST DO",
-  // "Proclamation"). Falls back to the active template's default when unset.
+  // Full override of the closing-section heading line for this day,
+  // including any emoji (e.g. "🎯TO DO🎯") — used as-is, no template
+  // prefix/suffix applied. Falls back to the active template's rendered
+  // default when unset.
   prayerLabel?: string
   resolve: string
   status: DayStatus

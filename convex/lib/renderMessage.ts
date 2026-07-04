@@ -35,6 +35,16 @@ export interface RenderableDay {
   quote?: string
 }
 
+// The template's prefix/suffix/style combo (e.g. two praying-hands emoji
+// around a bold label) is just the default look. A day can override the
+// *entire* heading line — including its own emoji choice — since not every
+// day's closing section wants the same bookend emoji (e.g. "TO DO 🎯" vs
+// the default "🙏PRAYER🙏"). When overridden, it's used verbatim with no
+// prefix/suffix/style applied on top.
+export function defaultPrayerHeading(cfg: TemplateConfig): string {
+  return `${cfg.prayerPrefix}${applyFontStyle(cfg.prayerLabel, cfg.prayerStyle)}${cfg.prayerSuffix}`
+}
+
 export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
   const lines: string[] = []
 
@@ -58,7 +68,7 @@ export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
   if (cfg.separatorB) { lines.push(''); lines.push(cfg.separatorB) }
   lines.push('')
 
-  lines.push(`${cfg.prayerPrefix}${applyFontStyle(day.prayerLabel?.trim() || cfg.prayerLabel, cfg.prayerStyle)}${cfg.prayerSuffix}`)
+  lines.push(day.prayerLabel?.trim() || defaultPrayerHeading(cfg))
   if (cfg.prayerNumbering) {
     for (const [i, pt] of day.prayerPoints.entries()) lines.push(`*${i + 1}. ${pt}*`)
   } else {

@@ -59,7 +59,7 @@ export function MessageEditForm({ day, onChange, onSave, onCancel, mobile }: Pro
             style={{ marginTop: 6, width: '100%', padding: '10px 12px', border: `1px solid ${P.line}`, borderRadius: 7, background: P.surface, fontSize: 13, lineHeight: 1.55, minHeight: 140, fontFamily: P.sans, boxSizing: 'border-box', resize: 'vertical', outline: 'none', color: P.ink }}
           />
         </div>
-        <EditField label="section heading (e.g. Prayer Points, MUST DO, Proclamation)" value={day.prayerLabel ?? ''} onChange={v => setField('prayerLabel', v)} />
+        <EditField label="section heading, incl. emoji (e.g. 🙏PRAYER🙏, 🎯TO DO🎯)" value={day.prayerLabel ?? ''} onChange={v => setField('prayerLabel', v)} />
         <FieldLabel>prayer points</FieldLabel>
         <div style={{ marginTop: 6, border: `1px solid ${P.line}`, borderRadius: 8, overflow: 'hidden', marginBottom: 10 }}>
           {day.prayer.map((pt, i) => (
@@ -99,7 +99,7 @@ export function MessageEditForm({ day, onChange, onSave, onCancel, mobile }: Pro
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
         <div>
-          <EditField label="section heading" value={day.prayerLabel ?? ''} onChange={v => setField('prayerLabel', v)} />
+          <EditField label="section heading, incl. emoji" value={day.prayerLabel ?? ''} onChange={v => setField('prayerLabel', v)} />
           <FieldLabel>prayer points</FieldLabel>
           <div style={{ marginTop: 6, border: `1px solid ${P.line}`, borderRadius: 8, overflow: 'hidden' }}>
             {day.prayer.map((pt, i) => (

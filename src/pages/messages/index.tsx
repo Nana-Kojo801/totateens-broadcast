@@ -16,7 +16,7 @@ import { useAppStore } from '@/store/app-store'
 import { useShallow } from 'zustand/react/shallow'
 import { Skeleton } from '@/components/ui/skeleton'
 import { dowShortOfDate, ordinal, monthName } from '@/lib/utils'
-import { renderMessage } from '../../../convex/lib/renderMessage'
+import { renderMessage, defaultPrayerHeading } from '../../../convex/lib/renderMessage'
 import { DEFAULT_TEMPLATE_CONFIG } from '../../../convex/lib/templateConfig'
 import type { DevotionalDay, DayStatus } from '@/store/app-store'
 import { SEND_TIME_LABEL } from '@/lib/broadcast-time'
@@ -137,11 +137,20 @@ export function MessagesPage() {
 
   // From here: convexMsg is non-null, day is valid
   const day: DevotionalDay = convexMsgToDay(convexMsg)
+  const templateConfig = activeTemplate?.config ?? DEFAULT_TEMPLATE_CONFIG
 
   const cancelEdit = () => { setPendingEdit(null); setIsEdit(false) }
 
   const startEdit = () => {
-    setPendingEdit({ ...day, body: [...day.body], prayer: [...day.prayer] })
+    setPendingEdit({
+      ...day,
+      body: [...day.body],
+      prayer: [...day.prayer],
+      // Prefill with the currently-rendered heading (not just a blank input)
+      // so editing it means tweaking the emoji/text that's already there,
+      // not guessing what the template would've produced.
+      prayerLabel: day.prayerLabel || defaultPrayerHeading(templateConfig),
+    })
     setIsEdit(true)
   }
 
@@ -155,7 +164,7 @@ export function MessagesPage() {
       body: pendingEdit.body.join('\n\n'),
       prayerPoints: pendingEdit.prayer,
       prayerLabel: pendingEdit.prayerLabel,
-    }, activeTemplate?.config ?? DEFAULT_TEMPLATE_CONFIG)
+    }, templateConfig)
     await updateMessageMut({
       id: convexMsg._id as Id<'messages'>,
       title: pendingEdit.title,
@@ -223,7 +232,7 @@ export function MessagesPage() {
         body: editDay.body.join('\n\n'),
         prayerPoints: editDay.prayer,
         prayerLabel: editDay.prayerLabel,
-      }, activeTemplate?.config ?? DEFAULT_TEMPLATE_CONFIG)
+      }, templateConfig)
     : convexMsg.formattedMessage
 
   return (
