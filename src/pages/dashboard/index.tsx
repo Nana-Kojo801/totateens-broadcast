@@ -172,8 +172,8 @@ export function DashboardPage() {
     sentAt: new Date(h.sentAt).toLocaleString(),
     groups: 1,
     delivered: h.status === 'success' ? 1 : 0,
-    mode: 'auto' as const,
   }))
+  const recentLoading = convexRecent === undefined
 
   const todayNum = new Date().getDate()
   const today = days[todayNum - 1]
@@ -242,7 +242,7 @@ export function DashboardPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 320px', gap: 14, minWidth: 0 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
             <DashboardScheduleBar days={days} sentCount={sentCount} />
-            {history.length > 0 && <DashboardRecent history={history} days={days} />}
+            {(recentLoading || history.length > 0) && <DashboardRecent history={history} days={days} loading={recentLoading} />}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
             {nextDay?.title && <DashboardNextMessage nextDay={nextDay} groups={groups} onManualSend={setManualSendDay} />}
@@ -310,22 +310,30 @@ export function DashboardPage() {
           </div>
         </Card>
 
-        {history.length > 0 && (
+        {(recentLoading || history.length > 0) && (
           <div style={{ marginTop: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <div style={{ fontSize: 11, fontWeight: 600, color: P.inkSoft, letterSpacing: 1, fontFamily: P.mono }}>RECENT</div>
               <button onClick={() => navigate('/history')} style={{ fontSize: 12, color: P.sage, fontWeight: 600, background: 'transparent', border: 'none', cursor: 'pointer' }}>all →</button>
             </div>
-            {history.slice(0, 4).map((h, i) => (
-              <Card key={i} onClick={() => goToMessage(h.day)} style={{ padding: 12, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                <div style={{ fontFamily: P.mono, fontSize: 13, color: P.inkSoft, width: 30 }}>{String(h.day).padStart(2, '0')}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{days[h.day - 1]?.title}</div>
-                  <div style={{ fontSize: 10.5, color: P.inkSoft, fontFamily: P.mono, marginTop: 2 }}>{h.sentAt.slice(-13)}</div>
-                </div>
-                <Tag bg={P.sageTint} color={P.sage}>{h.delivered}/{h.groups}</Tag>
-              </Card>
-            ))}
+            {recentLoading
+              ? Array.from({ length: 3 }, (_, i) => (
+                <Card key={i} style={{ padding: 12, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Skeleton height={13} width={30} />
+                  <div style={{ flex: 1, minWidth: 0 }}><Skeleton height={13} width="60%" /><Skeleton height={10} width="35%" style={{ marginTop: 4 }} /></div>
+                  <Skeleton height={20} width={40} style={{ borderRadius: 20 }} />
+                </Card>
+              ))
+              : history.slice(0, 4).map((h, i) => (
+                <Card key={i} onClick={() => goToMessage(h.day)} style={{ padding: 12, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                  <div style={{ fontFamily: P.mono, fontSize: 13, color: P.inkSoft, width: 30 }}>{String(h.day).padStart(2, '0')}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{days[h.day - 1]?.title}</div>
+                    <div style={{ fontSize: 10.5, color: P.inkSoft, fontFamily: P.mono, marginTop: 2 }}>{h.sentAt.slice(-13)}</div>
+                  </div>
+                  <Tag bg={P.sageTint} color={P.sage}>{h.delivered}/{h.groups}</Tag>
+                </Card>
+              ))}
           </div>
         )}
       </div>

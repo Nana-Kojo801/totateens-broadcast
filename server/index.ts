@@ -3,6 +3,7 @@ import cors from 'cors'
 import { initWhatsApp, shutdownWhatsApp } from './whatsapp'
 import sendRouter from './routes/send'
 import statusRouter from './routes/status'
+import logoutRouter from './routes/logout'
 
 const app = express()
 const PORT = process.env.PORT ?? process.env.WA_SERVER_PORT ?? 3001
@@ -17,6 +18,7 @@ app.use(express.json())
 
 app.use('/send', sendRouter)
 app.use('/status', statusRouter)
+app.use('/logout', logoutRouter)
 
 app.listen(PORT, () => {
   console.log(`WhatsApp server running on port ${PORT}`)

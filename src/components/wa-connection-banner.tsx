@@ -66,6 +66,19 @@ export function WaConnectionBanner({ waStatus, waQr, size = 'lg' }: { waStatus: 
           </Card>
         </motion.div>
       )}
+      {waStatus === 'authenticated' && (
+        <motion.div key="authenticated" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} style={{ marginBottom: 14 }}>
+          <Card style={{ padding: pad, display: 'flex', gap: pad - 2, alignItems: 'center' }}>
+            <div style={{ width: imgSize, height: imgSize, borderRadius: 8, background: P.sageTint, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+              <Icon name="check" size={size === 'lg' ? 26 : 22} color={P.sage} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: size === 'lg' ? 14 : 13, marginBottom: size === 'lg' ? 4 : 3 }}>Scan received — finishing setup…</div>
+              <div style={{ fontSize: size === 'lg' ? 12 : 11.5, color: P.inkSoft, lineHeight: 1.5 }}>This only takes a moment.</div>
+            </div>
+          </Card>
+        </motion.div>
+      )}
     </AnimatePresence>
   )
 }

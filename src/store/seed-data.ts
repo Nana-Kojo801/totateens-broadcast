@@ -46,16 +46,16 @@ export const SEED_GROUPS: WhatsAppGroup[] = [
 ]
 
 export const SEED_HISTORY: HistoryEntry[] = [
-  { day: 22, sentAt: 'Fri 22 May, 02:00', groups: 5, delivered: 5, mode: 'auto' },
-  { day: 21, sentAt: 'Thu 21 May, 02:00', groups: 5, delivered: 5, mode: 'auto' },
-  { day: 20, sentAt: 'Wed 20 May, 02:00', groups: 5, delivered: 4, mode: 'auto', warn: 'TOTA · Diaspora UK delivery delayed' },
-  { day: 19, sentAt: 'Tue 19 May, 09:14', groups: 5, delivered: 5, mode: 'manual', note: 'Re-sent after edit' },
-  { day: 19, sentAt: 'Tue 19 May, 02:00', groups: 5, delivered: 5, mode: 'auto' },
-  { day: 18, sentAt: 'Mon 18 May, 02:00', groups: 5, delivered: 5, mode: 'auto' },
-  { day: 17, sentAt: 'Sun 17 May, 02:00', groups: 5, delivered: 5, mode: 'auto' },
-  { day: 16, sentAt: 'Sat 16 May, 02:00', groups: 5, delivered: 5, mode: 'auto' },
-  { day: 15, sentAt: 'Fri 15 May, 02:00', groups: 5, delivered: 5, mode: 'auto' },
-  { day: 14, sentAt: 'Thu 14 May, 02:00', groups: 5, delivered: 5, mode: 'auto' },
+  { day: 22, sentAt: 'Fri 22 May, 02:00', groups: 5, delivered: 5 },
+  { day: 21, sentAt: 'Thu 21 May, 02:00', groups: 5, delivered: 5 },
+  { day: 20, sentAt: 'Wed 20 May, 02:00', groups: 5, delivered: 4, warn: 'TOTA · Diaspora UK delivery delayed' },
+  { day: 19, sentAt: 'Tue 19 May, 09:14', groups: 5, delivered: 5, note: 'Re-sent after edit' },
+  { day: 19, sentAt: 'Tue 19 May, 02:00', groups: 5, delivered: 5 },
+  { day: 18, sentAt: 'Mon 18 May, 02:00', groups: 5, delivered: 5 },
+  { day: 17, sentAt: 'Sun 17 May, 02:00', groups: 5, delivered: 5 },
+  { day: 16, sentAt: 'Sat 16 May, 02:00', groups: 5, delivered: 5 },
+  { day: 15, sentAt: 'Fri 15 May, 02:00', groups: 5, delivered: 5 },
+  { day: 14, sentAt: 'Thu 14 May, 02:00', groups: 5, delivered: 5 },
 ]
 
 export const SEED_PDF: PdfFile = {

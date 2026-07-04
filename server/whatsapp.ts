@@ -2,7 +2,7 @@ import wwebjs from 'whatsapp-web.js'
 const { Client, LocalAuth } = wwebjs
 import qrcode from 'qrcode'
 
-type Status = 'connected' | 'qr_pending' | 'disconnected'
+type Status = 'connected' | 'qr_pending' | 'disconnected' | 'authenticated'
 
 let currentStatus: Status = 'disconnected'
 let currentQr: string | null = null
@@ -26,6 +26,16 @@ client.on('qr', async (qr: string) => {
   currentStatus = 'qr_pending'
   currentQr = await qrcode.toDataURL(qr)
   console.log('QR code ready — scan with WhatsApp')
+})
+
+client.on('authenticated', () => {
+  // Fires right after a successful QR scan, before 'ready'. Clear the QR
+  // immediately so the frontend doesn't keep showing a stale, already-used
+  // code while whatsapp-web.js finishes its handshake.
+  if (disconnectTimer) { clearTimeout(disconnectTimer); disconnectTimer = null }
+  currentStatus = 'authenticated'
+  currentQr = null
+  console.log('WhatsApp authenticated — finishing setup…')
 })
 
 client.on('ready', () => {
@@ -71,6 +81,17 @@ export function initWhatsApp(attempt = 1): void {
         setTimeout(() => initWhatsApp(attempt + 1), 2000)
       })
     }
+  })
+}
+
+export function logoutWhatsApp(): void {
+  console.log('Logging out WhatsApp — a new QR code will be required')
+  currentStatus = 'disconnected'
+  currentQr = null
+  client.logout().catch(() => undefined).finally(() => {
+    client.initialize().catch((err: unknown) => {
+      console.error('WhatsApp post-logout init error:', err)
+    })
   })
 }
 

@@ -31,7 +31,6 @@ export interface HistoryEntry {
   sentAt: string
   groups: number
   delivered: number
-  mode: 'auto' | 'manual'
   note?: string
   warn?: string
 }
@@ -45,7 +44,10 @@ export interface PdfFile {
 // 'unreachable' means the poll to the sidecar server itself failed (CORS,
 // network, server not running) — distinct from 'disconnected', which means
 // the server responded fine but WhatsApp itself isn't linked yet.
-export type WaStatus = 'connected' | 'qr_pending' | 'disconnected' | 'loading' | 'unreachable'
+// 'authenticated' is the brief window after a QR scan where whatsapp-web.js
+// is finishing its handshake but isn't fully 'connected' yet — shown so the
+// old QR image doesn't just sit there looking unresponsive.
+export type WaStatus = 'connected' | 'qr_pending' | 'disconnected' | 'loading' | 'unreachable' | 'authenticated'
 export type UploadProgress = 'idle' | 'uploading' | 'parsing' | 'done' | 'error'
 
 interface AppState {

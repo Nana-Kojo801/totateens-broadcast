@@ -54,6 +54,7 @@ const WA_STATUS_LABEL: Record<WaStatus, string> = {
   loading: 'Checking…',
   connected: 'Connected',
   qr_pending: 'Waiting for scan',
+  authenticated: 'Finishing setup…',
   disconnected: 'Not connected',
   unreachable: "Can't reach WhatsApp server",
 }
@@ -61,6 +62,7 @@ const WA_STATUS_COLOR: Record<WaStatus, string> = {
   loading: P.inkFaint,
   connected: P.sage,
   qr_pending: P.sun,
+  authenticated: P.sage,
   disconnected: P.rose,
   unreachable: P.rose,
 }
@@ -114,6 +116,8 @@ export function SettingsPage() {
   )
   const clearAllData = useMutation(api.uploadOps.clearAllData)
   const [confirmClear, setConfirmClear] = useState(false)
+  const [confirmWaLogout, setConfirmWaLogout] = useState(false)
+  const [loggingOutWa, setLoggingOutWa] = useState(false)
   const [appVersion, setAppVersion] = useState<string | null>(null)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
 
@@ -147,10 +151,31 @@ export function SettingsPage() {
     }
   }
 
+  const handleWaLogout = async () => {
+    setLoggingOutWa(true)
+    try {
+      const waServerUrl = import.meta.env.VITE_WA_SERVER_URL as string | undefined
+      if (!waServerUrl) throw new Error('WhatsApp server URL not configured')
+      const res = await fetch(`${waServerUrl}/logout`, { method: 'POST' })
+      if (!res.ok) throw new Error(`server responded ${res.status}`)
+      setConfirmWaLogout(false)
+      setToast('Logged out — scan a new QR code to link a WhatsApp account')
+    } catch (err) {
+      setToast('Logout failed: ' + String(err))
+    } finally {
+      setLoggingOutWa(false)
+    }
+  }
+
   const whatsappSection = (
     <>
       <SectionLabel>WHATSAPP</SectionLabel>
       <WaStatusRow waStatus={waStatus} />
+      <Row
+        label="Use a different WhatsApp account"
+        sub="log out and scan a new QR code"
+        onClick={() => setConfirmWaLogout(true)}
+      />
     </>
   )
 
@@ -221,6 +246,29 @@ export function SettingsPage() {
             <div style={{ display: 'flex', gap: 8 }}>
               <button type="button" onClick={() => setConfirmClear(false)} style={{ flex: 1, padding: '10px 0', borderRadius: 7, border: `1px solid ${P.line}`, background: P.surface, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
               <button type="button" onClick={handleClearAll} style={{ flex: 1, padding: '10px 0', borderRadius: 7, border: `1px solid ${P.rose}`, background: P.rose, color: '#FFF', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Clear all</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmWaLogout && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(14,20,16,0.45)', zIndex: 9000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          onClick={() => setConfirmWaLogout(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: P.surface, borderRadius: 12, padding: 22, width: 360, maxWidth: '90%', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}
+          >
+            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Use a different WhatsApp account?</div>
+            <div style={{ fontSize: 13, color: P.inkSoft, marginBottom: 18, lineHeight: 1.5 }}>
+              This logs the current WhatsApp account out. You'll need to scan a new QR code to link another account before broadcasts can send again.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" onClick={() => setConfirmWaLogout(false)} style={{ flex: 1, padding: '10px 0', borderRadius: 7, border: `1px solid ${P.line}`, background: P.surface, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+              <button type="button" onClick={() => { void handleWaLogout() }} disabled={loggingOutWa} style={{ flex: 1, padding: '10px 0', borderRadius: 7, border: `1px solid ${P.rose}`, background: P.rose, color: '#FFF', fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: loggingOutWa ? 0.6 : 1 }}>
+                {loggingOutWa ? 'Logging out…' : 'Log out'}
+              </button>
             </div>
           </div>
         </div>

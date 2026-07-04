@@ -36,20 +36,17 @@ export function HistoryPage() {
     sentAt: new Date(h.sentAt).toLocaleString(),
     groups: 1,
     delivered: h.status === 'success' ? 1 : 0,
-    mode: 'auto' as const,
     note: h.groupName,
   }))
 
-  const autoCount = history.filter((h) => h.mode === 'auto').length
-  const manualCount = history.filter((h) => h.mode === 'manual').length
   const canLoadMore = queryStatus === 'CanLoadMore'
 
   if (queryStatus === 'LoadingFirstPage') {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <div className="hidden md:block">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
-            {[0, 1, 2].map((i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 14 }}>
+            {[0, 1].map((i) => (
               <Card key={i} style={{ padding: 14 }}>
                 <Skeleton height={10} width="60%" />
                 <Skeleton height={26} style={{ marginTop: 8 }} />
@@ -94,20 +91,19 @@ export function HistoryPage() {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
       {/* Desktop */}
       <div className="hidden md:block">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
-          <StatCard label="Total sent" value={String(autoCount + manualCount)} sub="this month" tone={P.ink} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 14 }}>
+          <StatCard label="Total sent" value={String(history.length)} sub="this month" tone={P.ink} />
           <StatCard label="Delivery rate" value="99.1%" sub="excellent" tone={P.sage} />
-          <StatCard label="Manual sends" value={String(manualCount)} sub="this month" tone={P.sun} />
         </div>
 
         <Card style={{ padding: 0, overflow: 'hidden', minWidth: 0 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '60px minmax(0,1fr) 160px 90px 110px 50px', padding: '10px 16px', fontSize: 10, color: P.inkSoft, letterSpacing: 1, fontWeight: 600, background: P.bgSoft, borderBottom: `1px solid ${P.line}` }}>
-            <div>DAY</div><div>TITLE · REF</div><div>SENT</div><div>MODE</div><div>DELIVERY</div><div />
+          <div style={{ display: 'grid', gridTemplateColumns: '60px minmax(0,1fr) 160px 110px 50px', padding: '10px 16px', fontSize: 10, color: P.inkSoft, letterSpacing: 1, fontWeight: 600, background: P.bgSoft, borderBottom: `1px solid ${P.line}` }}>
+            <div>DAY</div><div>TITLE · REF</div><div>SENT</div><div>DELIVERY</div><div />
           </div>
           {history.map((h, i) => {
             const d = dayInfoMap.get(h.day)
             return (
-              <div key={i} onClick={() => navigate(`/messages/${h.day}`)} style={{ display: 'grid', gridTemplateColumns: '60px minmax(0,1fr) 160px 90px 110px 50px', padding: '12px 16px', alignItems: 'center', borderBottom: `1px solid ${P.lineSoft}`, cursor: 'pointer', minWidth: 0 }}>
+              <div key={i} onClick={() => navigate(`/messages/${h.day}`)} style={{ display: 'grid', gridTemplateColumns: '60px minmax(0,1fr) 160px 110px 50px', padding: '12px 16px', alignItems: 'center', borderBottom: `1px solid ${P.lineSoft}`, cursor: 'pointer', minWidth: 0 }}>
                 <div style={{ fontFamily: P.mono, fontSize: 13 }}>{String(h.day).padStart(2, '0')}</div>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d?.title}</div>
@@ -116,7 +112,6 @@ export function HistoryPage() {
                   </div>
                 </div>
                 <div style={{ fontFamily: P.mono, fontSize: 11, color: P.inkSoft }}>{h.sentAt}</div>
-                <div><Tag bg={h.mode === 'manual' ? P.sunTint : P.sageTint} color={h.mode === 'manual' ? P.sun : P.sage}>{h.mode}</Tag></div>
                 <div><Tag bg={P.sageTint} color={P.sage}>{h.delivered}/{h.groups} ✓</Tag></div>
                 <div style={{ textAlign: 'right', color: P.inkFaint }}>
                   <Icon name="chevronRight" size={14} />
@@ -141,8 +136,8 @@ export function HistoryPage() {
             <div style={{ fontFamily: P.mono, fontSize: 17, fontWeight: 600, color: P.sage, marginTop: 4 }}>99.1%</div>
           </Card>
           <Card style={{ padding: 10 }}>
-            <div style={{ fontSize: 9, color: P.inkSoft, fontFamily: P.mono, letterSpacing: 1 }}>MANUAL</div>
-            <div style={{ fontFamily: P.mono, fontSize: 17, fontWeight: 600, marginTop: 4 }}>{manualCount}</div>
+            <div style={{ fontSize: 9, color: P.inkSoft, fontFamily: P.mono, letterSpacing: 1 }}>TOTAL SENT</div>
+            <div style={{ fontFamily: P.mono, fontSize: 17, fontWeight: 600, marginTop: 4 }}>{history.length}</div>
           </Card>
         </div>
 
@@ -155,7 +150,7 @@ export function HistoryPage() {
               </div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d?.title}</div>
-                <div style={{ fontSize: 10.5, color: P.inkSoft, fontFamily: P.mono, marginTop: 2 }}>{h.sentAt.slice(-13)} · {h.mode}</div>
+                <div style={{ fontSize: 10.5, color: P.inkSoft, fontFamily: P.mono, marginTop: 2 }}>{h.sentAt.slice(-13)}</div>
               </div>
               <Tag bg={P.sageTint} color={P.sage}>{h.delivered}/{h.groups}</Tag>
             </Card>

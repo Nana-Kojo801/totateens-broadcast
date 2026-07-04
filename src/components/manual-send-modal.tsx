@@ -61,16 +61,12 @@ function ModalContent({ day, groups, onConfirm, onClose }: Props) {
         ))}
       </div>
 
-      <div style={{ padding: 10, borderRadius: 8, background: P.sunTint, border: `1px solid rgba(216,139,38,0.3)`, display: 'flex', gap: 8, fontSize: 11, color: P.inkSoft, marginBottom: 14, alignItems: 'flex-start' }}>
-        <span>⚠</span>
-        <span>
-          {day.status === 'sent'
-            ? 'This message already went out once — sending again will deliver it a second time to selected groups.'
-            : day.status === 'today'
-              ? 'Tonight\'s scheduled auto-broadcast will be skipped to avoid duplicates.'
-              : 'Scheduled auto-broadcast for this day will be skipped to avoid duplicates.'}
-        </span>
-      </div>
+      {day.status === 'sent' && (
+        <div style={{ padding: 10, borderRadius: 8, background: P.sunTint, border: `1px solid rgba(216,139,38,0.3)`, display: 'flex', gap: 8, fontSize: 11, color: P.inkSoft, marginBottom: 14, alignItems: 'flex-start' }}>
+          <span>⚠</span>
+          <span>This message already went out once — sending again will deliver it a second time to selected groups.</span>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 8 }}>
         <Btn onClick={onClose} style={{ flex: 1, justifyContent: 'center', padding: 11 }}>Cancel</Btn>

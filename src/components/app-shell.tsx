@@ -73,14 +73,34 @@ export function AppShell() {
 
   const waStatusRef = useRef<WaStatus>('loading')
   const waQrRef = useRef<string | null>(null)
+  const unreachableStreakRef = useRef(0)
 
   // Polled here (not per-page) so the connection status stays current no
   // matter which page is open — Dashboard and Settings both just read
   // `waStatus`/`waQr` from the store instead of each running their own poll.
   useEffect(() => {
+    // The sidecar's Express server (and behind it, whatsapp-web.js/Chrome)
+    // takes a few seconds to come up after launch. A failed poll during
+    // that window looks identical to a genuinely unreachable server, so we
+    // don't surface 'unreachable' until several consecutive polls fail —
+    // otherwise every launch briefly flashes a scary error before settling
+    // into the real qr_pending/connected state.
+    const UNREACHABLE_THRESHOLD = 3
+
     const poll = async () => {
       const { status, qr } = await fetchWaStatus()
-      if (status !== waStatusRef.current) { waStatusRef.current = status; setWaStatus(status) }
+
+      let effectiveStatus = status
+      if (status === 'unreachable') {
+        unreachableStreakRef.current += 1
+        if (unreachableStreakRef.current < UNREACHABLE_THRESHOLD && waStatusRef.current === 'loading') {
+          effectiveStatus = 'loading'
+        }
+      } else {
+        unreachableStreakRef.current = 0
+      }
+
+      if (effectiveStatus !== waStatusRef.current) { waStatusRef.current = effectiveStatus; setWaStatus(effectiveStatus) }
       const oldQrExisted = waQrRef.current !== null
       const newQrExists = qr !== null
       waQrRef.current = qr

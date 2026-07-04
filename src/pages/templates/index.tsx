@@ -49,7 +49,7 @@ export function TemplatesPage() {
       <div className="hidden md:flex" style={{ alignItems: 'center', gap: 10, marginBottom: 14 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 15, fontWeight: 600 }}>Format templates</div>
-          <div style={{ fontSize: 12, color: P.inkSoft, marginTop: 2 }}>Pick the active one below or in Settings → Broadcast. It's applied instantly on the next upload, import, or re-format — no AI, no waiting.</div>
+          <div style={{ fontSize: 12, color: P.inkSoft, marginTop: 2 }}>Pick the active one below. It's applied instantly on the next upload, import, or re-format — no AI, no waiting.</div>
         </div>
         <Btn variant="primary" onClick={() => navigate('/templates/new')} style={{ flexShrink: 0 }}>
           <Icon name="plus" size={13} color="#FFF" /> New template
@@ -135,19 +135,6 @@ export function TemplatesPage() {
         ))}
       </div>
     </motion.div>
-
-      <button
-        type="button"
-        onClick={() => navigate('/templates/new')}
-        className="md:hidden"
-        style={{
-          position: 'fixed', right: 18, bottom: 84, width: 52, height: 52, borderRadius: 99,
-          background: P.sage, border: `1px solid ${P.sageDeep}`, color: '#FFF', cursor: 'pointer',
-          display: 'grid', placeItems: 'center', boxShadow: '0 10px 24px -6px rgba(47,125,92,0.55)', zIndex: 500,
-        }}
-      >
-        <Icon name="plus" size={22} color="#FFF" />
-      </button>
 
       {confirmDelete && (
         <div

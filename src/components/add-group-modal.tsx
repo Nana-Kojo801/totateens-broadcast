@@ -80,11 +80,6 @@ function ModalContent({ onConfirm, onClose }: Props) {
         </div>
       )}
 
-      <div style={{ padding: 10, borderRadius: 8, background: P.sageTint, border: `1px solid #C7E4D4`, display: 'flex', gap: 8, fontSize: 11, color: P.sageDeep, marginBottom: 14, alignItems: 'flex-start', lineHeight: 1.55 }}>
-        <Icon name="flash" size={14} color={P.sage} />
-        <span>{mode === 'link' ? 'The bot will request to join. An admin in that group must approve.' : 'The bot must already be a member of the group with this ID.'}</span>
-      </div>
-
       <div style={{ display: 'flex', gap: 8 }}>
         <Btn onClick={onClose} style={{ flex: 1, justifyContent: 'center', padding: 11 }}>Cancel</Btn>
         <Btn variant="primary" onClick={onAdd} disabled={!canAdd || adding} style={{ flex: 1.4, justifyContent: 'center', padding: 11, opacity: !canAdd || adding ? 0.5 : 1 }}>
