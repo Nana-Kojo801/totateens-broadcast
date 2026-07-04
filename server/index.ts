@@ -7,12 +7,7 @@ import statusRouter from './routes/status'
 const app = express()
 const PORT = process.env.WA_SERVER_PORT ?? 3001
 
-// This server only ever runs as a local sidecar talking to our own desktop
-// app on the same machine — never exposed to the network — so a strict
-// origin allowlist buys no real security, just breaks things when Tauri's
-// packaged-app origin (https://tauri.localhost) differs from the dev
-// server's (http://localhost:5173). Reflecting any origin is safe here.
-app.use(cors({ origin: true }))
+app.use(cors({ origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173' }))
 app.use(express.json())
 
 app.use('/send', sendRouter)
@@ -23,12 +18,11 @@ app.listen(PORT, () => {
   initWhatsApp()
 })
 
-// The Tauri sidecar host writes "shutdown" to this process's stdin when the
-// app window closes, giving whatsapp-web.js a chance to close its Chrome
-// session cleanly (a hard process kill leaves Chrome orphaned on Windows).
-process.stdin.on('data', (data: Buffer) => {
-  if (data.toString().trim() === 'shutdown') {
-    shutdownWhatsApp().finally(() => process.exit(0))
-  }
-})
-process.stdin.resume()
+// Let whatsapp-web.js close its Chrome session cleanly on a normal stop/
+// restart (most hosts — Docker, systemd, Render, Railway — send SIGTERM),
+// instead of a hard kill leaving Chrome orphaned.
+const gracefulShutdown = () => {
+  shutdownWhatsApp().finally(() => process.exit(0))
+}
+process.on('SIGTERM', gracefulShutdown)
+process.on('SIGINT', gracefulShutdown)

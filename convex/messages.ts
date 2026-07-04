@@ -2,7 +2,6 @@
 
 import { internalAction } from './_generated/server'
 import { internal } from './_generated/api'
-import { v } from 'convex/values'
 import type { Doc } from './_generated/dataModel'
 
 // This file's action bodies get transitively type-checked under the
@@ -95,58 +94,5 @@ export const sendDailyMessage = internalAction({
     })
 
     console.log(`Daily send complete. Status: ${newStatus}`)
-  },
-})
-
-export const sendManual = internalAction({
-  args: {
-    messageId: v.id('messages'),
-    formattedMessage: v.string(),
-    waServerUrl: v.string(),
-    apiKey: v.string(),
-  },
-  handler: async (ctx, { messageId, formattedMessage, waServerUrl, apiKey }) => {
-    const groups: Doc<'groups'>[] = await ctx.runQuery(
-      internal.groups.listActiveInternal,
-      {},
-    )
-
-    for (const group of groups) {
-      try {
-        const res = await fetch(`${waServerUrl}/send`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-          },
-          body: JSON.stringify({
-            groupId: group.whatsappId,
-            message: formattedMessage,
-          }),
-        })
-        const json = (await res.json()) as { success: boolean; error?: string }
-
-        await ctx.runMutation(internal.messageQueries.logSend, {
-          messageId,
-          groupId: group._id,
-          sentAt: Date.now(),
-          status: json.success ? 'success' : 'failed',
-          error: json.success ? undefined : (json.error ?? 'send failed'),
-        })
-      } catch (err) {
-        await ctx.runMutation(internal.messageQueries.logSend, {
-          messageId,
-          groupId: group._id,
-          sentAt: Date.now(),
-          status: 'failed',
-          error: String(err),
-        })
-      }
-    }
-
-    await ctx.runMutation(internal.messageQueries.updateStatusInternal, {
-      id: messageId,
-      status: 'sent',
-    })
   },
 })

@@ -8,7 +8,6 @@
  * @module
  */
 
-import type * as appSettings from "../appSettings.js";
 import type * as crons from "../crons.js";
 import type * as groups from "../groups.js";
 import type * as history from "../history.js";
@@ -31,7 +30,6 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  appSettings: typeof appSettings;
   crons: typeof crons;
   groups: typeof groups;
   history: typeof history;

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useMutation } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
@@ -11,10 +11,8 @@ import { Btn } from '@/components/ui/btn'
 import { useAppStore } from '@/store/app-store'
 import type { WaStatus } from '@/store/app-store'
 import { useShallow } from 'zustand/react/shallow'
-import { checkForUpdate } from '@/lib/update'
 import { fetchWaStatus } from '@/lib/wa-status'
 import { SEND_TIME_LABEL } from '@/lib/broadcast-time'
-import { getVersion } from '@tauri-apps/api/app'
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -105,38 +103,15 @@ function WaStatusRow({ waStatus }: { waStatus: WaStatus }) {
 
 export function SettingsPage() {
   const navigate = useNavigate()
-  const { calendarStyle, setToast, waStatus, setUpdateAvailable } = useAppStore(
+  const { calendarStyle, setToast, waStatus } = useAppStore(
     useShallow((s) => ({
       calendarStyle: s.calendarStyle,
       setToast: s.setToast,
       waStatus: s.waStatus,
-      setUpdateAvailable: s.setUpdateAvailable,
     }))
   )
   const clearAllData = useMutation(api.uploadOps.clearAllData)
   const [confirmClear, setConfirmClear] = useState(false)
-  const [appVersion, setAppVersion] = useState<string | null>(null)
-  const [checkingUpdate, setCheckingUpdate] = useState(false)
-
-  useEffect(() => {
-    getVersion().then(setAppVersion).catch(() => undefined)
-  }, [])
-
-  const handleCheckUpdates = async () => {
-    setCheckingUpdate(true)
-    try {
-      const update = await checkForUpdate()
-      if (update) {
-        setUpdateAvailable(update)
-      } else {
-        setToast("You're up to date")
-      }
-    } catch (err) {
-      setToast('Could not check for updates: ' + String(err))
-    } finally {
-      setCheckingUpdate(false)
-    }
-  }
 
   const handleClearAll = async () => {
     try {
@@ -169,14 +144,6 @@ export function SettingsPage() {
 
         <SectionLabel>DATA</SectionLabel>
         <Row label="Clear all data" sub="delete all messages, uploads & send history" danger onClick={() => setConfirmClear(true)} />
-
-        <SectionLabel>ABOUT</SectionLabel>
-        <Row
-          label="Check for updates"
-          sub={appVersion ? `version ${appVersion}` : undefined}
-          value={checkingUpdate ? 'Checking…' : 'Check now'}
-          onClick={checkingUpdate ? undefined : () => { void handleCheckUpdates() }}
-        />
       </div>
 
       {/* Mobile */}
@@ -199,14 +166,6 @@ export function SettingsPage() {
 
         <SectionLabel>DATA</SectionLabel>
         <Row label="Clear all data" sub="delete all messages, uploads & send history" danger onClick={() => setConfirmClear(true)} />
-
-        <SectionLabel>ABOUT</SectionLabel>
-        <Row
-          label="Check for updates"
-          sub={appVersion ? `version ${appVersion}` : undefined}
-          value={checkingUpdate ? 'Checking…' : 'Check now'}
-          onClick={checkingUpdate ? undefined : () => { void handleCheckUpdates() }}
-        />
       </div>
 
       {confirmClear && (

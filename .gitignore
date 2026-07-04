@@ -12,20 +12,13 @@ dist
 dist-ssr
 *.local
 
-# Env files (secrets) — .env.production is the exception: it only holds
-# non-sensitive, build-required values (Convex's public client URL, the
-# fixed localhost sidecar port) that every desktop build needs, so it's
-# committed rather than gitignored.
+# Env files (secrets)
 .env
 .env.*
-!.env.production
 
 # WhatsApp session — never commit real credentials
 .wwebjs_auth
 .wwebjs_cache
-
-# Tauri sidecar build output
-src-tauri/binaries
 
 # Editor directories and files
 .vscode/*

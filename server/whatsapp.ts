@@ -12,10 +12,6 @@ export const client = new Client({
   authStrategy: new LocalAuth({ dataPath: process.env.WA_DATA_DIR ?? '.wwebjs_auth' }),
   puppeteer: {
     headless: true,
-    // Use the system-installed Chrome instead of downloading/bundling
-    // Chromium — keeps the packaged sidecar binary small since this app
-    // only ever runs on one known machine that already has Chrome.
-    channel: 'chrome',
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   },
 })

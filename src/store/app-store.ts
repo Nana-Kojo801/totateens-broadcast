@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Update } from '@tauri-apps/plugin-updater'
 
 export type DayStatus = 'sent' | 'today' | 'upcoming' | 'missing'
 
@@ -59,9 +58,6 @@ interface AppState {
   waStatus: WaStatus
   waQr: string | null
 
-  // App auto-update state
-  updateAvailable: Update | null
-
   // Month view state
   viewMonth: string
 
@@ -77,8 +73,6 @@ interface AppState {
 
   setWaStatus: (status: WaStatus) => void
   setWaQr: (qr: string | null) => void
-
-  setUpdateAvailable: (update: Update | null) => void
 
   setViewMonth: (month: string) => void
 
@@ -102,8 +96,6 @@ export const useAppStore = create<AppState>()(
       waStatus: 'loading',
       waQr: null,
 
-      updateAvailable: null,
-
       viewMonth: currentMonthYear(),
 
       uploadProgress: 'idle',
@@ -120,8 +112,6 @@ export const useAppStore = create<AppState>()(
 
       setWaStatus: (status) => set({ waStatus: status }),
       setWaQr: (qr) => set({ waQr: qr }),
-
-      setUpdateAvailable: (update) => set({ updateAvailable: update }),
 
       setViewMonth: (month) => set({ viewMonth: month }),
 
