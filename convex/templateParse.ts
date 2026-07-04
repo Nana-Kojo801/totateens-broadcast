@@ -24,13 +24,11 @@ export interface RoleMap {
   separatorBLine: number | null
   prayerLabelLine: number | null
   prayerNumbering: boolean
-  vocabLabelLine: number | null
-  quoteLabelLine: number | null
   footerStartLine: number | null
 }
 
 function buildPrompt(numberedText: string): string {
-  return `Below is an example WhatsApp devotional message, one line per row with its 0-based line number. It follows this structural pattern, in order: a decorative banner line, a ministry/brand name line, a date line, a blank line, a title, an optional subtitle in parentheses, an optional decorative separator line, the scripture verse (one or more lines), the scripture reference, the separator repeated, a blank line, a section heading like "LEVEL UP" introducing the teaching body, a blank line, the body text, an optional separator, a blank line, a "PRAYER" heading followed by prayer point(s) (possibly numbered "1. ..."), then optionally a "VOCABULARY"/vocab heading, then optionally a "QUOTE" heading, then a closing separator, then footer lines (links, website, social handles) to the end.
+  return `Below is an example WhatsApp devotional message, one line per row with its 0-based line number. It follows this structural pattern, in order: a decorative banner line, a ministry/brand name line, a date line, a blank line, a title, an optional subtitle in parentheses, an optional decorative separator line, the scripture verse (one or more lines), the scripture reference, the separator repeated, a blank line, a section heading like "LEVEL UP" introducing the teaching body, a blank line, the body text, an optional separator, a blank line, a "PRAYER" heading followed by prayer point(s) (possibly numbered "1. ..."), then a closing separator, then footer lines (links, website, social handles) to the end.
 
 Identify which line number each structural role corresponds to. Some roles won't be present in every example — use null for those. Ministry and date lines sometimes start with "> " (a blockquote marker) — report that separately as a boolean, do not include it in the line role itself.
 
@@ -50,8 +48,6 @@ Return ONLY valid JSON, no prose, no markdown fences, matching exactly this shap
   "separatorBLine": number|null,
   "prayerLabelLine": number|null,
   "prayerNumbering": boolean,
-  "vocabLabelLine": number|null,
-  "quoteLabelLine": number|null,
   "footerStartLine": number|null
 }
 
@@ -177,34 +173,6 @@ export function assembleConfig(rawLines: string[], roles: RoleMap): TemplateConf
     }
   }
   cfg.prayerNumbering = roles.prayerNumbering
-
-  const vocab = lineAt(rawLines, roles.vocabLabelLine)
-  if (vocab) {
-    const parts = extractLabelParts(vocab)
-    cfg.includeVocab = true
-    if (parts.label) {
-      cfg.vocabLabel = parts.label
-      cfg.vocabStyle = parts.style
-      cfg.vocabPrefix = parts.prefix
-      cfg.vocabSuffix = parts.suffix
-    }
-  } else {
-    cfg.includeVocab = false
-  }
-
-  const quote = lineAt(rawLines, roles.quoteLabelLine)
-  if (quote) {
-    const parts = extractLabelParts(quote)
-    cfg.includeQuote = true
-    if (parts.label) {
-      cfg.quoteLabel = parts.label
-      cfg.quoteStyle = parts.style
-      cfg.quotePrefix = parts.prefix
-      cfg.quoteSuffix = parts.suffix
-    }
-  } else {
-    cfg.includeQuote = false
-  }
 
   if (roles.footerStartLine !== null && roles.footerStartLine >= 0 && roles.footerStartLine < rawLines.length) {
     const footer = rawLines.slice(roles.footerStartLine).map((l) => l.trim()).filter((l) => l.length > 0)

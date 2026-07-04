@@ -131,9 +131,6 @@ export function UploadPage() {
           body: string
           prayerPoints: string[]
           prayerLabel?: string
-          vocabWord?: string
-          vocabDefinition?: string
-          quote?: string
         }>
       }
 
@@ -158,9 +155,6 @@ export function UploadPage() {
           body: d.body,
           prayerPoints: d.prayerPoints,
           prayerLabel: d.prayerLabel,
-          vocabWord: d.vocabWord,
-          vocabDefinition: d.vocabDefinition,
-          quote: d.quote,
         })),
       })
 

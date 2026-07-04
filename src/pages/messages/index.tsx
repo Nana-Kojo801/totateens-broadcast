@@ -149,7 +149,7 @@ export function MessagesPage() {
       // Prefill with the currently-rendered heading (not just a blank input)
       // so editing it means tweaking the emoji/text that's already there,
       // not guessing what the template would've produced.
-      prayerLabel: day.prayerLabel || defaultPrayerHeading(templateConfig),
+      prayerLabel: (day.prayerLabel || defaultPrayerHeading(templateConfig)).toUpperCase(),
     })
     setIsEdit(true)
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useQuery, useMutation } from 'convex/react'
@@ -19,9 +19,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard } from './components/dashboard-stats'
 import { DashboardScheduleBar } from './components/dashboard-schedule-bar'
 import { DashboardRecent } from './components/dashboard-recent'
-import { DashboardNextMessage } from './components/dashboard-next-message'
-import { dowShortOfDate, monthName } from '@/lib/utils'
-import { SEND_HOUR_UTC, SEND_MINUTE_UTC, SEND_TIME_LABEL } from '@/lib/broadcast-time'
 import type { DevotionalDay, DayStatus, HistoryEntry, WhatsAppGroup } from '@/store/app-store'
 
 function convexMsgToDay(msg: {
@@ -54,17 +51,6 @@ function convexMsgToDay(msg: {
   }
 }
 
-function computeCountdown(): string {
-  const now = new Date()
-  const next = new Date()
-  next.setUTCHours(SEND_HOUR_UTC, SEND_MINUTE_UTC, 0, 0)
-  if (next <= now) next.setUTCDate(next.getUTCDate() + 1)
-  const diff = next.getTime() - now.getTime()
-  const h = Math.floor(diff / 3600000)
-  const m = Math.floor((diff % 3600000) / 60000)
-  return `${h}h ${m}m`
-}
-
 export function DashboardPage() {
   const navigate = useNavigate()
   const { setToast, setViewMonth, waStatus, waQr } = useAppStore(
@@ -76,12 +62,11 @@ export function DashboardPage() {
     })),
   )
   const [manualSendDay, setManualSendDay] = useState<number | null>(null)
-  const [countdown, setCountdown] = useState(computeCountdown())
 
   // Dashboard always reflects the real current month — deliberately not the
   // shared `viewMonth` store value, which the Calendar page uses to browse
   // other months. Otherwise browsing to e.g. August in Calendar would make
-  // "today" / "next broadcast" here show mismatched August data.
+  // "today" here show mismatched August data.
   const todayMonthYear = new Date().toISOString().slice(0, 7)
   const convexMessages = useQuery(api.messageQueries.listByMonth, { monthYear: todayMonthYear })
   const convexGroups = useQuery(api.groups.listActive)
@@ -90,17 +75,12 @@ export function DashboardPage() {
   const updateStatusMut = useMutation(api.messageQueries.updateStatus)
   const manualSendLogMut = useMutation(api.messageQueries.manualSend)
 
-  useEffect(() => {
-    const id = setInterval(() => setCountdown(computeCountdown()), 60000)
-    return () => clearInterval(id)
-  }, [])
-
   if (convexMessages === undefined || convexGroups === undefined) {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <div className="hidden md:block">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
-            {[0, 1, 2, 3].map((i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
+            {[0, 1, 2].map((i) => (
               <Card key={i} style={{ padding: 14 }}>
                 <Skeleton height={10} width="60%" />
                 <Skeleton height={26} style={{ marginTop: 8 }} />
@@ -129,8 +109,7 @@ export function DashboardPage() {
           </div>
         </div>
         <div className="md:hidden" style={{ padding: '0 16px 16px' }}>
-          <Skeleton height={140} style={{ borderRadius: 14 }} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <Card style={{ padding: 12 }}><Skeleton height={10} width={60} /><Skeleton height={22} style={{ marginTop: 6 }} /></Card>
             <Card style={{ padding: 12 }}><Skeleton height={10} width={60} /><Skeleton height={22} style={{ marginTop: 6 }} /></Card>
           </div>
@@ -179,12 +158,9 @@ export function DashboardPage() {
 
   const todayNum = new Date().getDate()
   const today = days[todayNum - 1]
-  const nextDay = days[todayNum] ?? days[todayNum - 1]
   const sentCount = convexStats?.sent ?? rawDays.filter((d) => d.status === 'sent').length
   const activeGroups = groups.filter((g) => g.active)
   const todayFormatted = convexMessages.find((m) => m.date === new Date().toISOString().slice(0, 10))?.formattedMessage ?? ''
-  const nextDayDate = nextDay ? `${todayMonthYear}-${String(nextDay.d).padStart(2, '0')}` : null
-  const nextBroadcastSub = nextDay && nextDayDate ? `${dowShortOfDate(nextDayDate)} · ${String(nextDay.d).padStart(2, '0')} ${monthName(Number(todayMonthYear.slice(5, 7)))} · ${SEND_TIME_LABEL}` : SEND_TIME_LABEL
 
   const goToMessage = (day: number) => {
     setViewMonth(todayMonthYear)
@@ -234,8 +210,7 @@ export function DashboardPage() {
 
       {/* Desktop */}
       <div className="hidden md:block">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
-          <StatCard label="Next broadcast" value={countdown} sub={nextBroadcastSub} tone={P.sage} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
           <StatCard label="Month progress" value={`${sentCount}/31`} sub={`${Math.round((sentCount / 31) * 100)}% complete`} tone={P.ink} />
           <StatCard label="Delivery rate" value="99.1%" sub="rolling 30 days" tone={P.sage} />
           <StatCard label="Active groups" value={String(activeGroups.length)} sub={`of ${groups.length} total`} tone={P.ink} />
@@ -247,7 +222,6 @@ export function DashboardPage() {
             {(recentLoading || history.length > 0) && <DashboardRecent history={history} days={days} loading={recentLoading} />}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
-            {nextDay?.title && <DashboardNextMessage nextDay={nextDay} groups={groups} onManualSend={setManualSendDay} />}
             {today?.title && (
               <Card style={{ padding: 14, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 9 }}>
@@ -255,9 +229,14 @@ export function DashboardPage() {
                   <Tag bg={P.sunTint} color={P.sun}>DAY {todayNum}</Tag>
                 </div>
                 <WhatsAppBubbleCompact text={todayFormatted} />
-                <Btn onClick={() => goToMessage(todayNum)} style={{ width: '100%', justifyContent: 'center', marginTop: 10 }}>
-                  Open full preview <Icon name="arrowRight" size={12} />
-                </Btn>
+                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                  <Btn onClick={() => goToMessage(todayNum)} style={{ flex: 1, justifyContent: 'center' }}>
+                    Open full preview <Icon name="arrowRight" size={12} />
+                  </Btn>
+                  <Btn variant="primary" onClick={() => setManualSendDay(todayNum)} style={{ flex: 1, justifyContent: 'center' }}>
+                    <Icon name="send" size={12} color="#FFF" /> {today.status === 'sent' ? 'Resend' : 'Send now'}
+                  </Btn>
+                </div>
               </Card>
             )}
           </div>
@@ -266,21 +245,12 @@ export function DashboardPage() {
 
       {/* Mobile */}
       <div className="md:hidden" style={{ padding: '0 16px 16px' }}>
-        <div style={{ background: P.ink, color: '#FFF', borderRadius: 14, padding: 16, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 10.5, letterSpacing: 1, fontWeight: 600, color: '#9CB3A3' }}>
-            <Dot color={P.sageHi} /> NEXT BROADCAST · {SEND_TIME_LABEL}
-          </div>
-          <div style={{ fontFamily: P.mono, fontSize: 34, fontWeight: 600, lineHeight: 1, marginTop: 6 }}>{countdown}</div>
-          <div style={{ fontSize: 12, color: '#C8D4CD', marginTop: 7 }}>Tonight · Day {nextDay?.d} · {nextDay?.title}</div>
-          <div style={{ display: 'flex', gap: 6, marginTop: 14 }}>
-            <button onClick={() => goToMessage(nextDay?.d ?? todayNum)} style={{ flex: 1, padding: 10, borderRadius: 8, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: '#FFF', fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>Preview</button>
-            <button onClick={() => setManualSendDay(todayNum)} style={{ flex: 1.4, padding: 10, borderRadius: 8, background: P.sage, border: `1px solid ${P.sageDeep}`, color: '#FFF', fontWeight: 700, fontSize: 12, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer' }}>
-              <Icon name="send" size={12} color="#FFF" /> Send Day {todayNum} now
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+        {today?.title && (
+          <Btn variant="primary" onClick={() => setManualSendDay(todayNum)} style={{ width: '100%', justifyContent: 'center', marginBottom: 10 }}>
+            <Icon name="send" size={13} color="#FFF" /> {today.status === 'sent' ? `Resend Day ${todayNum}` : `Send Day ${todayNum} now`}
+          </Btn>
+        )}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <Card style={{ padding: 12 }}>
             <div style={{ fontSize: 10, color: P.inkSoft, letterSpacing: 1, fontWeight: 600 }}>PROGRESS</div>
             <div style={{ fontFamily: P.mono, fontSize: 22, fontWeight: 600, marginTop: 4 }}>{sentCount}/31</div>

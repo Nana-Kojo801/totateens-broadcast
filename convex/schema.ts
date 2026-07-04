@@ -17,9 +17,6 @@ export default defineSchema({
     // underneath is still whatever's in `prayerPoints`. Falls back to the
     // active template's rendered default when not set.
     prayerLabel: v.optional(v.string()),
-    vocabWord: v.optional(v.string()),
-    vocabDefinition: v.optional(v.string()),
-    quote: v.optional(v.string()),
     formattedMessage: v.string(),
     status: v.union(
       v.literal('scheduled'),

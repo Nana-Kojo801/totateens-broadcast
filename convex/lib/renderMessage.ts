@@ -30,9 +30,6 @@ export interface RenderableDay {
   body: string
   prayerPoints: string[]
   prayerLabel?: string
-  vocabWord?: string
-  vocabDefinition?: string
-  quote?: string
 }
 
 // The template's prefix/suffix/style combo (e.g. two praying-hands emoji
@@ -42,7 +39,7 @@ export interface RenderableDay {
 // the default "🙏PRAYER🙏"). When overridden, it's used verbatim with no
 // prefix/suffix/style applied on top.
 export function defaultPrayerHeading(cfg: TemplateConfig): string {
-  return `${cfg.prayerPrefix}${applyFontStyle(cfg.prayerLabel, cfg.prayerStyle)}${cfg.prayerSuffix}`
+  return `${cfg.prayerPrefix}${applyFontStyle(cfg.prayerLabel.toUpperCase(), cfg.prayerStyle)}${cfg.prayerSuffix}`
 }
 
 export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
@@ -68,24 +65,11 @@ export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
   if (cfg.separatorB) { lines.push(''); lines.push(cfg.separatorB) }
   lines.push('')
 
-  lines.push(day.prayerLabel?.trim() || defaultPrayerHeading(cfg))
+  lines.push(day.prayerLabel?.trim() ? day.prayerLabel.trim().toUpperCase() : defaultPrayerHeading(cfg))
   if (cfg.prayerNumbering) {
     for (const [i, pt] of day.prayerPoints.entries()) lines.push(`*${i + 1}. ${pt}*`)
   } else {
     lines.push(day.prayerPoints.join('\n\n'))
-  }
-
-  if (cfg.includeVocab && day.vocabWord?.trim()) {
-    if (cfg.separatorB) lines.push(cfg.separatorB)
-    lines.push('')
-    lines.push(`${cfg.vocabPrefix}${applyFontStyle(cfg.vocabLabel, cfg.vocabStyle)}${cfg.vocabSuffix}`)
-    lines.push(`${day.vocabWord}: ${day.vocabDefinition ?? ''}`)
-  }
-
-  if (cfg.includeQuote && day.quote?.trim()) {
-    lines.push('')
-    lines.push(`${cfg.quotePrefix}${applyFontStyle(cfg.quoteLabel, cfg.quoteStyle)}${cfg.quoteSuffix}`)
-    lines.push(day.quote)
   }
 
   if (cfg.separatorB) lines.push(cfg.separatorB)

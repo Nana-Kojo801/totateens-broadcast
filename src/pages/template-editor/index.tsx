@@ -26,9 +26,6 @@ const SAMPLE_DAY = {
   scriptureReference: 'Philippians 2:12-13 (ESV)',
   body: 'This is where your body text will appear. It can span several paragraphs — write your teaching here.\n\nA second paragraph shows how spacing looks in the rendered message.',
   prayerPoints: ['Spend time to pray and examine your walk with God.'],
-  vocabWord: 'Retrogress',
-  vocabDefinition: 'to move backwards on something or on a path',
-  quote: 'True maturity is when you realise that responsibility is the final destination of zeal.',
 }
 
 const fieldStyle: React.CSSProperties = {
@@ -333,7 +330,7 @@ export function TemplateEditorPage() {
           </GroupCard>
 
           <GroupCard title="Section separator">
-            <Field label="separator line (between body/prayer/vocab/quote/footer, blank to skip)"><input value={config.separatorB} onChange={(e) => set('separatorB', e.target.value)} style={{ ...fieldStyle, fontFamily: P.mono }} /></Field>
+            <Field label="separator line (between body/prayer/footer, blank to skip)"><input value={config.separatorB} onChange={(e) => set('separatorB', e.target.value)} style={{ ...fieldStyle, fontFamily: P.mono }} /></Field>
           </GroupCard>
 
           <GroupCard title="Prayer">
@@ -347,40 +344,6 @@ export function TemplateEditorPage() {
               <Switch on={config.prayerNumbering} onToggle={() => set('prayerNumbering', !config.prayerNumbering)} />
               <span style={{ fontSize: 12 }}>Number each prayer point ("1. ...")</span>
             </div>
-          </GroupCard>
-
-          <GroupCard title="Vocabulary hunt">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <Switch on={config.includeVocab} onToggle={() => set('includeVocab', !config.includeVocab)} />
-              <span style={{ fontSize: 12 }}>Include a vocabulary word section (needs vocabWord/vocabDefinition on the day)</span>
-            </div>
-            {config.includeVocab && (
-              <>
-                <Field label="label text"><input value={config.vocabLabel} onChange={(e) => set('vocabLabel', e.target.value)} style={fieldStyle} /></Field>
-                <Row>
-                  <Field label="prefix"><input value={config.vocabPrefix} onChange={(e) => set('vocabPrefix', e.target.value)} style={{ ...fieldStyle, fontFamily: P.mono }} /></Field>
-                  <Field label="suffix"><input value={config.vocabSuffix} onChange={(e) => set('vocabSuffix', e.target.value)} style={{ ...fieldStyle, fontFamily: P.mono }} /></Field>
-                </Row>
-                <Field label="style"><FontStyleSelect value={config.vocabStyle} onChange={(v) => set('vocabStyle', v)} /></Field>
-              </>
-            )}
-          </GroupCard>
-
-          <GroupCard title="Quote">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <Switch on={config.includeQuote} onToggle={() => set('includeQuote', !config.includeQuote)} />
-              <span style={{ fontSize: 12 }}>Include a quote section (needs quote on the day)</span>
-            </div>
-            {config.includeQuote && (
-              <>
-                <Field label="label text"><input value={config.quoteLabel} onChange={(e) => set('quoteLabel', e.target.value)} style={fieldStyle} /></Field>
-                <Row>
-                  <Field label="prefix"><input value={config.quotePrefix} onChange={(e) => set('quotePrefix', e.target.value)} style={{ ...fieldStyle, fontFamily: P.mono }} /></Field>
-                  <Field label="suffix"><input value={config.quoteSuffix} onChange={(e) => set('quoteSuffix', e.target.value)} style={{ ...fieldStyle, fontFamily: P.mono }} /></Field>
-                </Row>
-                <Field label="style"><FontStyleSelect value={config.quoteStyle} onChange={(v) => set('quoteStyle', v)} /></Field>
-              </>
-            )}
           </GroupCard>
 
           <GroupCard title="Footer">
