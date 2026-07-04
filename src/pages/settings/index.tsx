@@ -12,7 +12,6 @@ import { useAppStore } from '@/store/app-store'
 import type { WaStatus } from '@/store/app-store'
 import { useShallow } from 'zustand/react/shallow'
 import { fetchWaStatus } from '@/lib/wa-status'
-import { SEND_TIME_LABEL } from '@/lib/broadcast-time'
 import { checkForUpdate } from '@/lib/update'
 import { getVersion } from '@tauri-apps/api/app'
 
@@ -148,11 +147,8 @@ export function SettingsPage() {
     }
   }
 
-  const broadcastSection = (
+  const whatsappSection = (
     <>
-      <SectionLabel>BROADCAST</SectionLabel>
-      <Row label="Send time" sub="every day, fixed" value={SEND_TIME_LABEL} />
-
       <SectionLabel>WHATSAPP</SectionLabel>
       <WaStatusRow waStatus={waStatus} />
     </>
@@ -162,7 +158,7 @@ export function SettingsPage() {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
       {/* Desktop */}
       <div className="hidden md:block">
-        {broadcastSection}
+        {whatsappSection}
 
         <SectionLabel>APPEARANCE</SectionLabel>
         <Row label="Calendar style" value={calendarStyle} onClick={() => useAppStore.getState().setCalendarStyle(calendarStyle === 'tiles' ? 'dots' : 'tiles')} />
@@ -192,7 +188,7 @@ export function SettingsPage() {
           <Icon name="chevronRight" size={14} color={P.inkFaint} />
         </Card>
 
-        {broadcastSection}
+        {whatsappSection}
 
         <SectionLabel>APPEARANCE</SectionLabel>
         <Row label="Calendar style" value={calendarStyle} onClick={() => useAppStore.getState().setCalendarStyle(calendarStyle === 'tiles' ? 'dots' : 'tiles')} />
