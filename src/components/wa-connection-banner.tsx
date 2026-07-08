@@ -14,6 +14,7 @@ export function WaConnectionBanner({ waStatus, waQr, size = 'lg' }: { waStatus: 
   const setWaQr = useAppStore((s) => s.setWaQr)
   const [retrying, setRetrying] = useState(false)
   const imgSize = size === 'lg' ? 96 : 80
+  const qrSize = size === 'lg' ? 260 : 220
   const pad = size === 'lg' ? 16 : 14
 
   const retry = async () => {
@@ -57,12 +58,10 @@ export function WaConnectionBanner({ waStatus, waQr, size = 'lg' }: { waStatus: 
     <AnimatePresence>
       {waStatus === 'qr_pending' && waQr && (
         <motion.div key="qr" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} style={{ marginBottom: 14 }}>
-          <Card style={{ padding: pad, display: 'flex', gap: pad - 2, alignItems: 'center' }}>
-            <img src={waQr} width={imgSize} height={imgSize} alt="WhatsApp QR" style={{ borderRadius: 8, flexShrink: 0 }} />
-            <div>
-              <div style={{ fontWeight: 600, fontSize: size === 'lg' ? 14 : 13, marginBottom: size === 'lg' ? 4 : 3 }}>Scan to connect WhatsApp</div>
-              <div style={{ fontSize: size === 'lg' ? 12 : 11.5, color: P.inkSoft, lineHeight: 1.5 }}>Open WhatsApp → Settings → Linked Devices → Link a device</div>
-            </div>
+          <Card style={{ padding: pad + 6, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <img src={waQr} width={qrSize} height={qrSize} alt="WhatsApp QR" style={{ borderRadius: 10 }} />
+            <div style={{ fontWeight: 600, fontSize: size === 'lg' ? 15 : 14, marginTop: 14 }}>Scan to connect WhatsApp</div>
+            <div style={{ fontSize: size === 'lg' ? 12.5 : 12, color: P.inkSoft, lineHeight: 1.5, marginTop: 4 }}>Open WhatsApp → Settings → Linked Devices → Link a device</div>
           </Card>
         </motion.div>
       )}
