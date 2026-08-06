@@ -70,6 +70,7 @@ export const updateMessage = mutation({
   args: {
     id: v.id('messages'),
     title: v.optional(v.string()),
+    subtitle: v.optional(v.string()),
     scripture: v.optional(v.string()),
     scriptureReference: v.optional(v.string()),
     body: v.optional(v.string()),
@@ -117,10 +118,13 @@ export const insertMessage = mutation({
   args: {
     date: v.string(),
     title: v.string(),
+    subtitle: v.optional(v.string()),
     scripture: v.string(),
     scriptureReference: v.string(),
     body: v.string(),
     prayerPoints: v.array(v.string()),
+    prayerLabel: v.optional(v.string()),
+    otherSections: v.optional(v.array(v.object({ label: v.string(), content: v.string() }))),
     formattedMessage: v.string(),
     status: v.union(
       v.literal('scheduled'),
@@ -147,10 +151,13 @@ export const insertMessageInternal = internalMutation({
   args: {
     date: v.string(),
     title: v.string(),
+    subtitle: v.optional(v.string()),
     scripture: v.string(),
     scriptureReference: v.string(),
     body: v.string(),
     prayerPoints: v.array(v.string()),
+    prayerLabel: v.optional(v.string()),
+    otherSections: v.optional(v.array(v.object({ label: v.string(), content: v.string() }))),
     formattedMessage: v.string(),
     status: v.union(
       v.literal('scheduled'),

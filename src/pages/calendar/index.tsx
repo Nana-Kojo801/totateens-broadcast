@@ -138,6 +138,7 @@ function convexMsgToDay(msg: {
   _id: string
   date: string
   title: string
+  subtitle?: string
   scripture: string
   scriptureReference: string
   body: string
@@ -155,6 +156,7 @@ function convexMsgToDay(msg: {
   return {
     d,
     title: msg.title,
+    subtitle: msg.subtitle ?? '',
     verse: msg.scripture,
     ref: msg.scriptureReference,
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
@@ -262,7 +264,7 @@ export function CalendarPage() {
   const convexDayMap = new Map(convexMessages.map((m) => [parseInt(m.date.slice(8, 10)), convexMsgToDay(m)]))
   const days: DevotionalDay[] = Array.from({ length: 31 }, (_, i) => {
     const d = i + 1
-    return convexDayMap.get(d) ?? { d, title: '', verse: '', ref: '', body: [], prayer: [], resolve: '', status: 'upcoming' as DayStatus }
+    return convexDayMap.get(d) ?? { d, title: '', subtitle: '', verse: '', ref: '', body: [], prayer: [], resolve: '', status: 'upcoming' as DayStatus }
   })
 
   const groups: WhatsAppGroup[] = convexGroups.map((g) => ({
@@ -349,7 +351,10 @@ export function CalendarPage() {
               </div>
               {sel.title ? (
                 <>
-                  <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.25 }}>{sel.title}</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.25, fontFamily: P.sans }}>{sel.title}</div>
+                  {sel.subtitle && (
+                    <div style={{ marginTop: 3, fontSize: 12, color: P.inkSoft, fontStyle: 'italic', fontFamily: P.sans }}>{sel.subtitle}</div>
+                  )}
                   <div style={{ fontFamily: P.mono, fontSize: 11, color: P.inkSoft, marginTop: 4 }}>{sel.ref}</div>
                   <div style={{ fontSize: 12, color: P.inkSoft, marginTop: 8, lineHeight: 1.5, fontStyle: 'italic' }}>"{sel.verse}"</div>
                   <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
@@ -412,7 +417,10 @@ export function CalendarPage() {
           </div>
           {sel.title ? (
             <>
-              <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.25 }}>{sel.title}</div>
+              <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.25, fontFamily: P.sans }}>{sel.title}</div>
+              {sel.subtitle && (
+                <div style={{ marginTop: 3, fontSize: 12, color: P.inkSoft, fontStyle: 'italic', fontFamily: P.sans }}>{sel.subtitle}</div>
+              )}
               <div style={{ fontSize: 11, color: P.inkSoft, fontFamily: P.mono, marginTop: 4 }}>{sel.ref}</div>
               <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
                 <Btn onClick={() => navigate(`/messages/${sel.d}`)} style={{ flex: 1, justifyContent: 'center' }}>Preview</Btn>

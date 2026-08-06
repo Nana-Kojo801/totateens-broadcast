@@ -79,7 +79,7 @@ export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
   }
 
   for (const section of day.otherSections ?? []) {
-    if (!section.label.trim() && !section.content.trim()) continue
+    if (!section.label.trim() || !section.content.trim()) continue
     if (cfg.separatorB) lines.push(cfg.separatorB)
     lines.push('')
     lines.push(section.label.toUpperCase())

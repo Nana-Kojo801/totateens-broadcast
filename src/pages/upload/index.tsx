@@ -94,6 +94,7 @@ function convexMsgToDay(msg: {
   _id: string
   date: string
   title: string
+  subtitle?: string
   scripture: string
   scriptureReference: string
   body: string
@@ -111,6 +112,7 @@ function convexMsgToDay(msg: {
   return {
     d,
     title: msg.title,
+    subtitle: msg.subtitle ?? '',
     verse: msg.scripture,
     ref: msg.scriptureReference,
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
@@ -248,13 +250,13 @@ export function UploadPage() {
         days: parsed.days.map((d) => ({
           date: d.date,
           title: d.title,
-          subtitle: d.subtitle,
+          subtitle: d.subtitle ?? '',
           scripture: d.scripture,
           scriptureReference: d.scriptureReference,
           body: d.body,
           prayerPoints: d.prayerPoints,
           prayerLabel: d.prayerLabel,
-          otherSections: d.otherSections,
+          otherSections: d.otherSections ?? [],
         })),
       })
 

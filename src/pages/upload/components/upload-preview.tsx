@@ -95,9 +95,14 @@ export function UploadDayPreview({ day }: { day: DevotionalDay }) {
         </Tag>
       </div>
       <div style={{ padding: 18, fontSize: 13, lineHeight: 1.6, background: P.bgSoft }}>
-        <div style={{ fontSize: 16, fontWeight: 600, padding: '0 4px', background: P.sunTint, borderRadius: 3, display: 'inline-block' }}>
+        <div style={{ fontSize: 16, fontWeight: 600, padding: '0 4px', background: P.sunTint, borderRadius: 3, display: 'inline-block', fontFamily: P.sans }}>
           {day.title}
         </div>
+        {day.subtitle && (
+          <div style={{ marginTop: 4, fontSize: 12.5, color: P.inkSoft, fontStyle: 'italic', fontFamily: P.sans }}>
+            {day.subtitle}
+          </div>
+        )}
         <div style={{ marginTop: 6, fontSize: 12, color: P.inkSoft }}>
           <span style={{ background: P.sageTint, color: P.sage, padding: '0 4px', borderRadius: 3, fontFamily: P.mono, fontSize: 11 }}>{day.ref}</span>
           {' — '}<em>"{day.verse}"</em>
@@ -114,7 +119,7 @@ export function UploadDayPreview({ day }: { day: DevotionalDay }) {
         <div style={{ marginTop: 14, fontWeight: 700, fontStyle: 'italic' }}>{day.resolve}</div>
         {(day.otherSections ?? []).map((s, i) => (
           <div key={i}>
-            <div style={{ fontWeight: 700, marginTop: 14 }}>{s.label.toUpperCase()}</div>
+            <div style={{ fontWeight: 700, marginTop: 14, fontFamily: P.sans }}>{s.label.toUpperCase()}</div>
             <p style={{ margin: '4px 0 0' }}>{s.content}</p>
           </div>
         ))}

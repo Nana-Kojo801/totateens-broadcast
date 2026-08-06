@@ -12,10 +12,13 @@ import { DEFAULT_TEMPLATE_CONFIG } from './lib/templateConfig'
 interface ExtractedDay {
   date: string
   title: string
+  subtitle: string
   scripture: string
   scriptureReference: string
   body: string
   prayerPoints: string[]
+  prayerLabel: string
+  otherSections: { label: string; content: string }[]
 }
 
 
@@ -31,21 +34,26 @@ Extract ALL entries present in this text. Do not stop early.
 DOCUMENT STRUCTURE — each daily entry follows this exact pattern:
 1. DATE LINE — day-of-week + ordinal date + month + year in ALL CAPS (e.g. "THURSDAY, 1ST MAY 2025"). This marks the START of each new entry.
 2. TITLE — devotional title in ALL CAPS immediately after the date line (may span 1-2 lines).
-3. SCRIPTURE VERSE — the Bible verse text (may span multiple lines).
-4. SCRIPTURE REFERENCE — book, chapter:verse and version (e.g. "Daniel 4:10-12 BSB").
-5. BODY — several paragraphs of teaching text. Ends when "Prayer Point" heading appears.
-6. PRAYER POINTS — numbered list beginning with "Prayer Point(s):" or "Prayer Instruction:" heading, followed by numbered items.
+3. SUBTITLE (optional) — a short line in parentheses right after the title, e.g. "(You are God's planting)". Only present some days.
+4. SCRIPTURE VERSE — the Bible verse text (may span multiple lines).
+5. SCRIPTURE REFERENCE — book, chapter:verse and version (e.g. "Daniel 4:10-12 BSB").
+6. BODY — several paragraphs of teaching text. Ends when the closing heading (e.g. "Prayer Point", "Prayer Instruction", "Shout It Out", "Must Do") appears.
+7. PRAYER POINTS — numbered or plain list beneath the closing heading.
+8. OTHER SECTIONS (optional) — additional labeled boxes after the prayer section, such as "Act", "Vocabulary Hunt", "Quote", etc. Each has its own heading followed by its own text.
 
 PARSING RULES:
 - The PDF may repeat boilerplate page headers ("TRUMPETS OF THE AGES DAILY DEVOTIONAL", "www.totaonline.com", page numbers) — IGNORE these entirely.
 - Each entry ends when the next DATE LINE begins.
 - The line "~*Pastor Elliot*" or similar attribution after the scripture reference belongs to NO field — skip it.
-- Prayer points: include only the text of each numbered item, NOT the "Prayer Point(s):" heading itself.
+- Prayer points: include only the text of each numbered item, NOT the closing heading itself.
+- "prayerLabel" is the exact heading text printed above the prayer points (e.g. "Prayer Point", "Prayer Instruction", "Shout It Out") — use "" if there is no such heading.
+- "subtitle" is the parenthetical line under the title with the parentheses stripped — use "" if the day has none.
+- "otherSections" captures every other labeled box after the prayer section, in order, as { "label": ..., "content": ... } — use [] if there are none. Never include an entry with an empty label or empty content.
 - If a day's body text spans multiple paragraphs, join them with newline characters.
 - For the date field, use format YYYY-MM-DD. Derive the year and month from "${monthYear}" and the day number from the date line.
 
 Return ONLY a valid JSON array. No explanation, no markdown, no code fences, no trailing text. Each element must have EXACTLY these keys:
-"date" (YYYY-MM-DD string), "title" (string), "scripture" (verse text only, no reference), "scriptureReference" (e.g. "Daniel 4:10-12 BSB"), "body" (full body paragraphs), "prayerPoints" (string array, no numbering)
+"date" (YYYY-MM-DD string), "title" (string), "subtitle" (string, "" if none), "scripture" (verse text only, no reference), "scriptureReference" (e.g. "Daniel 4:10-12 BSB"), "body" (full body paragraphs), "prayerPoints" (string array, no numbering), "prayerLabel" (string, "" if none), "otherSections" (array of { "label", "content" }, [] if none)
 
 CRITICAL: If this text contains ANY devotional entries, your response MUST be a non-empty JSON array. Returning [] is only acceptable if the text is completely empty or contains zero devotional entries. If a field value is unclear, use your best guess — do NOT skip the entry or return empty array. Include the COMPLETE untruncated body text for every entry — do not shorten, summarize, or cut off any field.
 
@@ -214,15 +222,23 @@ export const parsePdf = internalAction({
           const status: 'scheduled' | 'sent' | 'failed' | 'missing' =
             day.date < todayStr ? 'missing' : 'scheduled'
 
-          const formattedMessage = renderMessage(day, config)
+          // Every otherSections entry must have a non-empty label and
+          // content — drop any that don't rather than storing/rendering a
+          // blank section.
+          const otherSections = (day.otherSections ?? []).filter((s) => s.label?.trim() && s.content?.trim())
+
+          const formattedMessage = renderMessage({ ...day, otherSections }, config)
 
           await ctx.runMutation(internal.messageQueries.insertMessageInternal, {
             date: day.date,
             title: day.title,
+            subtitle: day.subtitle,
             scripture: day.scripture,
             scriptureReference: day.scriptureReference,
             body: day.body,
             prayerPoints: day.prayerPoints,
+            prayerLabel: day.prayerLabel,
+            otherSections,
             formattedMessage,
             status,
             monthYear,
