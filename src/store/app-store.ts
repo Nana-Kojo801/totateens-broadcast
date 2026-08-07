@@ -13,6 +13,9 @@ export interface DevotionalDay {
   _id?: string
   d: number
   title: string
+  // Short parenthetical line under the title (parens stripped). Always
+  // present — empty string when the source day has none.
+  subtitle: string
   verse: string
   ref: string
   body: string[]

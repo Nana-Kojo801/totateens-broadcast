@@ -25,6 +25,7 @@ function convexMsgToDay(msg: {
   _id: string
   date: string
   title: string
+  subtitle?: string
   scripture: string
   scriptureReference: string
   body: string
@@ -42,6 +43,7 @@ function convexMsgToDay(msg: {
   return {
     d,
     title: msg.title,
+    subtitle: msg.subtitle ?? '',
     verse: msg.scripture,
     ref: msg.scriptureReference,
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
@@ -162,6 +164,7 @@ export function MessagesPage() {
     const newFormatted = renderMessage({
       date: convexMsg.date,
       title: pendingEdit.title,
+      subtitle: pendingEdit.subtitle,
       scripture: pendingEdit.verse,
       scriptureReference: pendingEdit.ref,
       body: pendingEdit.body.join('\n\n'),
@@ -172,6 +175,7 @@ export function MessagesPage() {
     await updateMessageMut({
       id: convexMsg._id as Id<'messages'>,
       title: pendingEdit.title,
+      subtitle: pendingEdit.subtitle,
       scripture: pendingEdit.verse,
       scriptureReference: pendingEdit.ref,
       body: pendingEdit.body.join('\n\n'),
@@ -232,6 +236,7 @@ export function MessagesPage() {
     ? renderMessage({
         date: convexMsg.date,
         title: editDay.title,
+        subtitle: editDay.subtitle,
         scripture: editDay.verse,
         scriptureReference: editDay.ref,
         body: editDay.body.join('\n\n'),

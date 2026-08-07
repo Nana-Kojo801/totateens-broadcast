@@ -25,6 +25,7 @@ function convexMsgToDay(msg: {
   _id: string
   date: string
   title: string
+  subtitle?: string
   scripture: string
   scriptureReference: string
   body: string
@@ -42,6 +43,7 @@ function convexMsgToDay(msg: {
   return {
     d,
     title: msg.title,
+    subtitle: msg.subtitle ?? '',
     verse: msg.scripture,
     ref: msg.scriptureReference,
     body: msg.body.split('\n\n').filter((p) => p.trim().length > 0),
@@ -140,7 +142,7 @@ export function DashboardPage() {
   const rawDays = convexMessages.map(convexMsgToDay)
   const days: DevotionalDay[] = Array.from({ length: 31 }, (_, i) => {
     const dayNum = i + 1
-    return rawDays.find((d) => d.d === dayNum) ?? { d: dayNum, title: '', verse: '', ref: '', body: [], prayer: [], resolve: '', status: 'upcoming' as DayStatus }
+    return rawDays.find((d) => d.d === dayNum) ?? { d: dayNum, title: '', subtitle: '', verse: '', ref: '', body: [], prayer: [], resolve: '', status: 'upcoming' as DayStatus }
   })
 
   const groups: WhatsAppGroup[] = convexGroups.map((g) => ({

@@ -85,6 +85,7 @@ export function MessageEditForm({ day, onChange, onSave, onCancel, mobile }: Pro
     return (
       <div style={{ padding: '0 16px 16px' }}>
         <EditField label="title" value={day.title} onChange={v => setField('title', v)} />
+        <EditField label="subtitle (short parenthetical under the title, blank if none)" value={day.subtitle} onChange={v => setField('subtitle', v)} />
         <EditField label="verse" value={day.verse} multiline onChange={v => setField('verse', v)} />
         <EditField label="reference" value={day.ref} mono onChange={v => setField('ref', v)} />
         <div style={{ marginBottom: 10 }}>
@@ -122,6 +123,7 @@ export function MessageEditForm({ day, onChange, onSave, onCancel, mobile }: Pro
   return (
     <>
       <EditField label="title" value={day.title} onChange={v => setField('title', v)} />
+      <EditField label="subtitle (short parenthetical under the title, blank if none)" value={day.subtitle} onChange={v => setField('subtitle', v)} />
       <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 10 }}>
         <EditField label="verse" value={day.verse} multiline onChange={v => setField('verse', v)} />
         <EditField label="reference" value={day.ref} mono onChange={v => setField('ref', v)} />

@@ -11,13 +11,13 @@ export const startImport = mutation({
       v.object({
         date: v.string(),
         title: v.string(),
-        subtitle: v.optional(v.string()),
+        subtitle: v.string(),
         scripture: v.string(),
         scriptureReference: v.string(),
         body: v.string(),
         prayerPoints: v.array(v.string()),
         prayerLabel: v.optional(v.string()),
-        otherSections: v.optional(v.array(v.object({ label: v.string(), content: v.string() }))),
+        otherSections: v.array(v.object({ label: v.string(), content: v.string() })),
       }),
     ),
   },
@@ -33,7 +33,10 @@ export const startImport = mutation({
 
     for (const day of days) {
       const status: 'scheduled' | 'missing' = day.date < todayStr ? 'missing' : 'scheduled'
-      const doc = { ...day, formattedMessage: renderMessage(day, config), status, monthYear }
+      // Every otherSections entry must have a non-empty label and content —
+      // drop any that don't rather than storing/rendering a blank section.
+      const otherSections = day.otherSections.filter((s) => s.label.trim() && s.content.trim())
+      const doc = { ...day, otherSections, formattedMessage: renderMessage({ ...day, otherSections }, config), status, monthYear }
 
       const existing = await ctx.db
         .query('messages')
