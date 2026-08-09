@@ -10,13 +10,36 @@ let disconnectTimer: ReturnType<typeof setTimeout> | null = null
 
 export const client = new Client({
   authStrategy: new LocalAuth({ dataPath: process.env.WA_DATA_DIR ?? '.wwebjs_auth' }),
+  // Without this, whatsapp-web.js fetches WhatsApp Web's current version
+  // metadata from a remote endpoint on every single launch before it can do
+  // anything else — a network round-trip that's the single biggest
+  // contributor to "takes forever to show connected/show the QR" on app
+  // open. Caching it locally after the first successful fetch skips that
+  // round-trip on every subsequent launch.
+  webVersionCache: { type: 'local' },
   puppeteer: {
     headless: true,
     // Use the system-installed Chrome instead of downloading/bundling
     // Chromium — keeps the packaged sidecar binary small since this app
     // only ever runs on one known machine that already has Chrome.
     channel: 'chrome',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      // Trim Chrome's own cold-start overhead — none of this affects
+      // WhatsApp Web functionality, it just skips work irrelevant to a
+      // single-purpose headless automation profile.
+      '--disable-extensions',
+      '--disable-default-apps',
+      '--disable-background-networking',
+      '--disable-background-timer-throttling',
+      '--disable-backgrounding-occluded-windows',
+      '--disable-renderer-backgrounding',
+      '--disable-sync',
+      '--no-first-run',
+      '--metrics-recording-only',
+      '--mute-audio',
+    ],
   },
 })
 

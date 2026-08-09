@@ -85,7 +85,15 @@ export function AppShell() {
     // don't surface 'unreachable' until several consecutive polls fail —
     // otherwise every launch briefly flashes a scary error before settling
     // into the real qr_pending/connected state.
-    const UNREACHABLE_THRESHOLD = 3
+    const UNREACHABLE_THRESHOLD = 6
+    // Poll fast while we still don't know the real status (waiting on the
+    // sidecar/Chrome to come up, or waiting for the QR to be generated) —
+    // this is exactly the "takes forever to show connected / show the QR"
+    // complaint, and most of that wait was just our own 5s poll cadence
+    // sitting on top of state the server already had. Once we're settled
+    // into a real status, back off to save CPU/battery.
+    let cancelled = false
+    let timeoutId: ReturnType<typeof setTimeout>
 
     const poll = async () => {
       const { status, qr } = await fetchWaStatus()
@@ -106,9 +114,15 @@ export function AppShell() {
       waQrRef.current = qr
       if (oldQrExisted !== newQrExists) setWaQr(qr)
     }
-    void poll()
-    const id = setInterval(() => void poll(), 5000)
-    return () => clearInterval(id)
+
+    const scheduleNext = () => {
+      if (cancelled) return
+      const settled = waStatusRef.current === 'connected' || waStatusRef.current === 'qr_pending' || waStatusRef.current === 'authenticated'
+      timeoutId = setTimeout(() => { void poll().then(scheduleNext) }, settled ? 5000 : 1200)
+    }
+    void poll().then(scheduleNext)
+
+    return () => { cancelled = true; clearTimeout(timeoutId) }
   }, [setWaStatus, setWaQr])
 
   // One-time check on launch. Silently no-ops outside a real Tauri build

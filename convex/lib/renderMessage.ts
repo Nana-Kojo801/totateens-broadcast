@@ -57,7 +57,7 @@ export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
   lines.push('')
   lines.push(applyFontStyle(day.title.toUpperCase(), cfg.titleStyle))
   if (day.subtitle?.trim()) {
-    lines.push(applyFontStyle(day.subtitle, cfg.subtitleStyle))
+    lines.push(applyFontStyle(`(${day.subtitle.trim()})`, cfg.subtitleStyle))
   }
   if (cfg.separatorA) lines.push(cfg.separatorA)
   lines.push(applyFontStyle(day.scripture, cfg.scriptureStyle))

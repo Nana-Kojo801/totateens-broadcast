@@ -100,7 +100,7 @@ export function UploadDayPreview({ day }: { day: DevotionalDay }) {
         </div>
         {day.subtitle && (
           <div style={{ marginTop: 4, fontSize: 12.5, color: P.inkSoft, fontStyle: 'italic', fontFamily: P.sans }}>
-            {day.subtitle}
+            ({day.subtitle})
           </div>
         )}
         <div style={{ marginTop: 6, fontSize: 12, color: P.inkSoft }}>

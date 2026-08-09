@@ -353,7 +353,7 @@ export function CalendarPage() {
                 <>
                   <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.25, fontFamily: P.sans }}>{sel.title}</div>
                   {sel.subtitle && (
-                    <div style={{ marginTop: 3, fontSize: 12, color: P.inkSoft, fontStyle: 'italic', fontFamily: P.sans }}>{sel.subtitle}</div>
+                    <div style={{ marginTop: 3, fontSize: 12, color: P.inkSoft, fontStyle: 'italic', fontFamily: P.sans }}>({sel.subtitle})</div>
                   )}
                   <div style={{ fontFamily: P.mono, fontSize: 11, color: P.inkSoft, marginTop: 4 }}>{sel.ref}</div>
                   <div style={{ fontSize: 12, color: P.inkSoft, marginTop: 8, lineHeight: 1.5, fontStyle: 'italic' }}>"{sel.verse}"</div>
@@ -419,7 +419,7 @@ export function CalendarPage() {
             <>
               <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.25, fontFamily: P.sans }}>{sel.title}</div>
               {sel.subtitle && (
-                <div style={{ marginTop: 3, fontSize: 12, color: P.inkSoft, fontStyle: 'italic', fontFamily: P.sans }}>{sel.subtitle}</div>
+                <div style={{ marginTop: 3, fontSize: 12, color: P.inkSoft, fontStyle: 'italic', fontFamily: P.sans }}>({sel.subtitle})</div>
               )}
               <div style={{ fontSize: 11, color: P.inkSoft, fontFamily: P.mono, marginTop: 4 }}>{sel.ref}</div>
               <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
