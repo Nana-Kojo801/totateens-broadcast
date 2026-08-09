@@ -118,7 +118,7 @@ export const insertMessage = mutation({
   args: {
     date: v.string(),
     title: v.string(),
-    subtitle: v.optional(v.string()),
+    subtitle: v.string(),
     scripture: v.string(),
     scriptureReference: v.string(),
     body: v.string(),
@@ -151,7 +151,7 @@ export const insertMessageInternal = internalMutation({
   args: {
     date: v.string(),
     title: v.string(),
-    subtitle: v.optional(v.string()),
+    subtitle: v.string(),
     scripture: v.string(),
     scriptureReference: v.string(),
     body: v.string(),

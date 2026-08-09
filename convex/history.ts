@@ -8,7 +8,7 @@ export const listPaginated = query({
     monthYear: v.optional(v.string()),
     status: v.optional(v.union(v.literal('success'), v.literal('failed'))),
   },
-  handler: async (ctx, { paginationOpts, monthYear: _monthYear, status: _status }) => {
+  handler: async (ctx, { paginationOpts }) => {
     const page = await ctx.db
       .query('sendHistory')
       .withIndex('by_sentAt')

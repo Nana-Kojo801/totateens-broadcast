@@ -54,7 +54,7 @@ function OtherSectionsEditor({ sections, onChange }: { sections: OtherSection[];
               value={s.label}
               placeholder="heading, e.g. VOCABULARY HUNT"
               onChange={e => update(i, { label: e.target.value.toUpperCase() })}
-              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, fontFamily: P.mono, background: 'transparent', color: P.ink }}
+              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 12, fontWeight: 700, fontFamily: P.sans, background: 'transparent', color: P.ink }}
             />
             <button type="button" onClick={() => remove(i)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: P.rose, fontSize: 11 }}>remove</button>
           </div>

@@ -82,7 +82,7 @@ export function renderMessage(day: RenderableDay, cfg: TemplateConfig): string {
     if (!section.label.trim() || !section.content.trim()) continue
     if (cfg.separatorB) lines.push(cfg.separatorB)
     lines.push('')
-    lines.push(section.label.toUpperCase())
+    lines.push(applyFontStyle(section.label.toUpperCase(), cfg.subtitleStyle))
     lines.push(section.content)
   }
 

@@ -6,7 +6,7 @@ export default defineSchema({
   messages: defineTable({
     date: v.string(),
     title: v.string(),
-    subtitle: v.optional(v.string()),
+    subtitle: v.string(),
     scripture: v.string(),
     scriptureReference: v.string(),
     body: v.string(),
