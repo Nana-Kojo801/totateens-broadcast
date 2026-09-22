@@ -1,6 +1,8 @@
 import wwebjs from 'whatsapp-web.js'
 const { Client, LocalAuth } = wwebjs
 import qrcode from 'qrcode'
+import fs from 'fs'
+import path from 'path'
 
 type Status = 'connected' | 'qr_pending' | 'disconnected' | 'authenticated'
 
@@ -8,8 +10,32 @@ let currentStatus: Status = 'disconnected'
 let currentQr: string | null = null
 let disconnectTimer: ReturnType<typeof setTimeout> | null = null
 
+const dataPath = process.env.WA_DATA_DIR ?? '.wwebjs_auth'
+
+// Chrome writes SingletonLock/SingletonCookie/SingletonSocket into the
+// profile dir while running and removes them on a clean exit. If the app
+// was force-quit, crashed, or killed by the OS instead of going through our
+// graceful shutdown, these survive — and on the next launch Puppeteer's
+// Chrome sits waiting to acquire a lock that's never coming free. Since we
+// only ever run one Chrome instance against this profile, it's always safe
+// to clear stale locks before starting: if Chrome were actually still
+// running, initialize() would just fail fast rather than hang forever like
+// it does now.
+function clearStaleSessionLocks(): void {
+  const sessionDir = path.join(dataPath, 'session')
+  for (const name of ['SingletonLock', 'SingletonCookie', 'SingletonSocket']) {
+    fs.rm(path.join(sessionDir, name), { force: true }, () => undefined)
+  }
+}
+
 export const client = new Client({
-  authStrategy: new LocalAuth({ dataPath: process.env.WA_DATA_DIR ?? '.wwebjs_auth' }),
+  authStrategy: new LocalAuth({ dataPath }),
+  // Without this, a hung Chrome launch (e.g. a lock file we failed to
+  // clear, or Chrome itself wedged) leaves the app stuck on "loading"
+  // forever with no error and no retry — this bounds that wait so our
+  // existing initWhatsApp() retry logic actually gets a chance to kick in.
+  authTimeoutMs: 60_000,
+  qrMaxRetries: 5,
   // Without this, whatsapp-web.js fetches WhatsApp Web's current version
   // metadata from a remote endpoint on every single launch before it can do
   // anything else — a network round-trip that's the single biggest
@@ -92,6 +118,7 @@ export function getStatus(): { status: Status; qr: string | null } {
 }
 
 export function initWhatsApp(attempt = 1): void {
+  clearStaleSessionLocks()
   client.initialize().catch((err: unknown) => {
     console.error(`WhatsApp init error (attempt ${attempt}):`, err)
     currentStatus = 'disconnected'
@@ -112,6 +139,7 @@ export function logoutWhatsApp(): void {
   currentStatus = 'disconnected'
   currentQr = null
   client.logout().catch(() => undefined).finally(() => {
+    clearStaleSessionLocks()
     client.initialize().catch((err: unknown) => {
       console.error('WhatsApp post-logout init error:', err)
     })
@@ -123,6 +151,7 @@ export function reinitWhatsApp(): void {
   currentStatus = 'disconnected'
   currentQr = null
   client.destroy().catch(() => undefined).finally(() => {
+    clearStaleSessionLocks()
     client.initialize().catch((err: unknown) => {
       console.error('WhatsApp reinit error:', err)
     })
