@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { P } from '@/lib/tokens'
 import { Btn } from '@/components/ui/btn'
 import { Icon } from '@/lib/icons'
+import { copyToClipboard } from '@/lib/utils'
 import type { DevotionalDay, WhatsAppGroup } from '@/store/app-store'
 
 interface Props {
   day: DevotionalDay
   groups: WhatsAppGroup[]
+  text?: string
   onConfirm: () => void
   onClose: () => void
   viewport?: 'desktop' | 'mobile'
@@ -17,9 +19,17 @@ interface WrapperProps extends Props {
   open: boolean
 }
 
-function ModalContent({ day, groups, onConfirm, onClose }: Props) {
+function ModalContent({ day, groups, text, onConfirm, onClose }: Props) {
   const [sending, setSending] = useState(false)
+  const [copied, setCopied] = useState(false)
   const active = groups.filter(g => g.active)
+
+  const handleCopy = async () => {
+    if (!text) return
+    const ok = await copyToClipboard(text)
+    setCopied(ok)
+    if (ok) setTimeout(() => setCopied(false), 1800)
+  }
 
   const handleConfirm = () => {
     setSending(true)
@@ -66,6 +76,12 @@ function ModalContent({ day, groups, onConfirm, onClose }: Props) {
           <span>⚠</span>
           <span>This message already went out once — sending again will deliver it a second time to selected groups.</span>
         </div>
+      )}
+
+      {text && (
+        <Btn onClick={() => { void handleCopy() }} style={{ width: '100%', justifyContent: 'center', padding: 10, marginBottom: 8 }}>
+          {copied ? <><Icon name="check" size={13} color={P.sage} /> Copied</> : <><Icon name="copy" size={13} /> Copy text instead</>}
+        </Btn>
       )}
 
       <div style={{ display: 'flex', gap: 8 }}>

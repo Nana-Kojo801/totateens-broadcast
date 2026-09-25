@@ -231,6 +231,15 @@ export function IconSearch({ size = 16, color = 'currentColor', className }: Ico
   )
 }
 
+export function IconCopy({ size = 16, color = 'currentColor', className }: IconProps) {
+  return (
+    <svg {...base(size, color)} className={className}>
+      <rect x="9" y="9" width="12" height="12" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  )
+}
+
 export function IconMore({ size = 16, color = 'currentColor', className }: IconProps) {
   return (
     <svg {...base(size, color)} className={className} fill={color} stroke="none">
@@ -256,7 +265,7 @@ export type IconName =
   | 'dashboard' | 'calendar' | 'upload' | 'message' | 'groups'
   | 'history' | 'settings' | 'send' | 'check' | 'x' | 'plus'
   | 'pencil' | 'trash' | 'eye' | 'arrowRight' | 'chevronRight'
-  | 'chevronLeft' | 'clock' | 'flash' | 'logout' | 'file' | 'search' | 'more'
+  | 'chevronLeft' | 'clock' | 'flash' | 'logout' | 'file' | 'search' | 'more' | 'copy'
 
 export function Icon({ name, size = 16, color = 'currentColor', className }: { name: IconName } & IconProps) {
   const props = { size, color, className }
@@ -284,6 +293,7 @@ export function Icon({ name, size = 16, color = 'currentColor', className }: { n
     case 'file': return <IconFile {...props} />
     case 'search': return <IconSearch {...props} />
     case 'more': return <IconMore {...props} />
+    case 'copy': return <IconCopy {...props} />
     default: return <IconDashboard {...props} />
   }
 }

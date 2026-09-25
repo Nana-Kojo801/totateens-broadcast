@@ -27,6 +27,31 @@ export function ordinal(n: number) {
   return n + (s[(v - 20) % 10] || s[v] || s[0])
 }
 
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch {
+    // fall through to legacy path below
+  }
+  try {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    textarea.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(textarea)
+    return ok
+  } catch {
+    return false
+  }
+}
+
 export function calendarGrid(monthYear: string): (number | null)[] {
   const [year, month] = monthYear.split('-').map(Number)
   const firstDow = new Date(Date.UTC(year, month - 1, 1)).getUTCDay()

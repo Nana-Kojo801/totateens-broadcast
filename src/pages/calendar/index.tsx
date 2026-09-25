@@ -440,6 +440,7 @@ export function CalendarPage() {
       <ManualSendModal
         open={!!manualSendDay && !!days[(manualSendDay ?? 1) - 1]?.title}
         day={days[(manualSendDay ?? 1) - 1]}
+        text={convexMessages?.find((m) => parseInt(m.date.slice(8, 10)) === manualSendDay)?.formattedMessage}
         groups={displayGroups}
         onConfirm={() => { void handleConfirmSend() }}
         onClose={() => setManualSendDay(null)}

@@ -15,6 +15,7 @@ import { WhatsAppBubbleCompact } from '@/components/whatsapp-bubble'
 import { ManualSendModal } from '@/components/manual-send-modal'
 import { WaConnectionBanner } from '@/components/wa-connection-banner'
 import { useAppStore } from '@/store/app-store'
+import { copyToClipboard } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard } from './components/dashboard-stats'
 import { DashboardScheduleBar } from './components/dashboard-schedule-bar'
@@ -171,6 +172,11 @@ export function DashboardPage() {
     navigate(`/messages/${day}`)
   }
 
+  const handleCopyToday = async () => {
+    const ok = await copyToClipboard(todayFormatted)
+    setToast(ok ? 'Message copied — paste it into WhatsApp' : 'Could not copy — try again')
+  }
+
   const handleConfirmSend = async () => {
     if (!manualSendDay) return
     const waServerUrl = import.meta.env.VITE_WA_SERVER_URL as string | undefined
@@ -237,6 +243,9 @@ export function DashboardPage() {
                   <Btn onClick={() => goToMessage(todayNum)} style={{ flex: 1, justifyContent: 'center' }}>
                     Full Preview <Icon name="arrowRight" size={12} />
                   </Btn>
+                  <Btn onClick={() => { void handleCopyToday() }} style={{ flex: 1, justifyContent: 'center' }}>
+                    <Icon name="copy" size={12} /> Copy text
+                  </Btn>
                   <Btn variant="primary" onClick={() => setManualSendDay(todayNum)} style={{ flex: 1, justifyContent: 'center' }}>
                     <Icon name="send" size={12} color="#FFF" /> {today.status === 'sent' ? 'Resend' : 'Send now'}
                   </Btn>
@@ -250,9 +259,14 @@ export function DashboardPage() {
       {/* Mobile */}
       <div className="md:hidden" style={{ padding: '0 16px 16px' }}>
         {today?.title && (
-          <Btn variant="primary" onClick={() => setManualSendDay(todayNum)} style={{ width: '100%', justifyContent: 'center', marginBottom: 10 }}>
-            <Icon name="send" size={13} color="#FFF" /> {today.status === 'sent' ? `Resend Day ${todayNum}` : `Send Day ${todayNum} now`}
-          </Btn>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <Btn variant="primary" onClick={() => setManualSendDay(todayNum)} style={{ flex: 1.4, justifyContent: 'center' }}>
+              <Icon name="send" size={13} color="#FFF" /> {today.status === 'sent' ? `Resend Day ${todayNum}` : `Send Day ${todayNum} now`}
+            </Btn>
+            <Btn onClick={() => { void handleCopyToday() }} style={{ flex: 1, justifyContent: 'center' }}>
+              <Icon name="copy" size={13} /> Copy
+            </Btn>
+          </div>
         )}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <Card style={{ padding: 12 }}>
@@ -317,6 +331,7 @@ export function DashboardPage() {
       <ManualSendModal
         open={!!manualSendDay}
         day={days[(manualSendDay ?? 1) - 1]}
+        text={convexMessages.find((m) => parseInt(m.date.slice(8, 10)) === manualSendDay)?.formattedMessage}
         groups={groups}
         onConfirm={() => { void handleConfirmSend() }}
         onClose={() => setManualSendDay(null)}

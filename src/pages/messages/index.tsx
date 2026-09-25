@@ -15,7 +15,7 @@ import { MessageEditForm } from './components/message-edit-form'
 import { useAppStore } from '@/store/app-store'
 import { useShallow } from 'zustand/react/shallow'
 import { Skeleton } from '@/components/ui/skeleton'
-import { dowShortOfDate, ordinal, monthName } from '@/lib/utils'
+import { dowShortOfDate, ordinal, monthName, copyToClipboard } from '@/lib/utils'
 import { renderMessage, defaultPrayerHeading } from '../../../convex/lib/renderMessage'
 import { DEFAULT_TEMPLATE_CONFIG } from '../../../convex/lib/templateConfig'
 import type { DevotionalDay, DayStatus } from '@/store/app-store'
@@ -231,6 +231,11 @@ export function MessagesPage() {
     setToast('Broadcast sent to active groups')
   }
 
+  const handleCopyText = async () => {
+    const ok = await copyToClipboard(convexMsg.formattedMessage)
+    setToast(ok ? 'Message copied — paste it into WhatsApp' : 'Could not copy — try again')
+  }
+
   const editDay = pendingEdit ?? day
   const previewText = isEdit
     ? renderMessage({
@@ -277,6 +282,11 @@ export function MessagesPage() {
                 </>
               )}
               {!isEdit && (
+                <Btn onClick={() => { void handleCopyText() }}>
+                  <Icon name="copy" size={12} /> Copy text
+                </Btn>
+              )}
+              {!isEdit && (
                 <Btn variant="primary" onClick={() => setManualSendDay(day.d)} style={{ background: P.ink, borderColor: P.ink }}>
                   <Icon name="send" size={12} color="#FFF" /> {day.status === 'sent' ? 'Resend' : 'Send now'}
                 </Btn>
@@ -312,6 +322,9 @@ export function MessagesPage() {
               <Btn onClick={startEdit} style={{ flex: 1, justifyContent: 'center' }}>
                 <Icon name="pencil" size={13} /> Edit
               </Btn>
+              <Btn onClick={() => { void handleCopyText() }} style={{ flex: 1, justifyContent: 'center' }}>
+                <Icon name="copy" size={13} /> Copy text
+              </Btn>
               <Btn variant="primary" onClick={() => setManualSendDay(day.d)} style={{ flex: 1.4, justifyContent: 'center' }}>
                 <Icon name="send" size={13} color="#FFF" /> {day.status === 'sent' ? 'Resend' : `Send to ${displayGroups.length} groups`}
               </Btn>
@@ -346,6 +359,7 @@ export function MessagesPage() {
       <ManualSendModal
         open={!!manualSendDay}
         day={day}
+        text={convexMsg.formattedMessage}
         groups={displayGroups}
         onConfirm={() => { void handleConfirmSend() }}
         onClose={() => setManualSendDay(null)}
