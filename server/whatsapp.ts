@@ -24,7 +24,18 @@ const dataPath = process.env.WA_DATA_DIR ?? '.wwebjs_auth'
 function clearStaleSessionLocks(): void {
   const sessionDir = path.join(dataPath, 'session')
   for (const name of ['SingletonLock', 'SingletonCookie', 'SingletonSocket']) {
-    fs.rm(path.join(sessionDir, name), { force: true }, () => undefined)
+    // Synchronous and awaited by nothing on purpose: the async fs.rm() this
+    // used to call queues the delete but returns immediately, so
+    // client.initialize() right after could still see the stale lock file —
+    // Chrome would then sit waiting on a lock that was already being
+    // removed, just not fast enough. rmSync blocks until the file is
+    // actually gone before initialize() ever runs.
+    try {
+      fs.rmSync(path.join(sessionDir, name), { force: true })
+    } catch {
+      // best-effort cleanup — a failure here just means initialize() may hang
+      // and retry, same as before this fix
+    }
   }
 }
 
